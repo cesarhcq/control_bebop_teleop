@@ -1,0 +1,216 @@
+#!/usr/bin/env python
+from __future__ import print_function
+ 
+import roslib
+roslib.load_manifest('control_bebop_teleop')
+
+import time, math
+import sys, select, termios, tty
+import rospy
+import cv2
+
+# numpy and scipy
+import numpy as np
+import cv2.aruco as aruco
+from std_msgs.msg import Empty
+from geometry_msgs.msg import Twist
+
+linearx = 0
+lineary = 0
+linearz = 0
+
+angularx = 0
+angulary = 0
+angularz = 0
+
+first_flight = True
+cont = 0
+
+###############################################################################
+
+def getKey():
+  tty.setraw(sys.stdin.fileno())
+  select.select([sys.stdin], [], [], 0)
+  key = sys.stdin.read(1)
+  termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+  return key
+
+###############################################################################
+
+def callback(data):
+  global linearx, lineary, linearz, angularx, angulary, angularz
+
+  linearx = data.linear.x
+  lineary = data.linear.y
+  linearz = data.linear.z
+
+  angularx = data.angular.x
+  angulary = data.angular.y
+  angularz = data.angular.z
+
+###############################################################################
+
+def moveUp():
+  global cont
+
+  cam_twist = Twist()
+  
+  first_position = Twist()
+
+  while cont < 200:
+
+      #-- set camera, look to down
+    cam_twist.angular.x = 0
+    cam_twist.angular.y = -90
+    cam_twist.angular.z = 0
+    cam_pub.publish(cam_twist)
+
+    print('init cont: ', cont)
+    first_position.linear.x = 0
+    first_position.linear.y = 0
+    first_position.linear.z = 1
+
+    first_position.angular.x = 0
+    first_position.angular.y = 0
+    first_position.angular.z = 0
+    pose_pub.publish(first_position)
+
+    cont= cont+1
+
+    print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
+    print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
+    #rospy.sleep(0.5)
+    rate.sleep()
+
+ ###############################################################################
+
+def moveDown():
+  global cont
+
+  cam_twist = Twist()
+  
+  first_position = Twist()
+
+  while cont < 200:
+
+      #-- set camera, look to down
+    cam_twist.angular.x = 0
+    cam_twist.angular.y = -90
+    cam_twist.angular.z = 0
+    cam_pub.publish(cam_twist)
+
+    print('init cont: ', cont)
+    first_position.linear.x = 0
+    first_position.linear.y = 0
+    first_position.linear.z = -1
+
+    first_position.angular.x = 0
+    first_position.angular.y = 0
+    first_position.angular.z = 0
+    pose_pub.publish(first_position)
+
+    cont= cont+1
+
+    print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
+    print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
+    #rospy.sleep(0.5)
+    rate.sleep()
+
+  ###############################################################################
+
+  def move2Aruco():
+    global first_flight, cont
+    
+    goal_aruco = Twist()
+    
+    # first_position = Twist()
+    
+    #   while cont < 10000:
+    #     print('init while')
+    #     first_position.linear.x = 0
+    #     first_position.linear.y = 0
+    #     first_position.linear.z = -1
+
+    #     first_position.angular.x = 0
+    #     first_position.angular.y = 0
+    #     first_position.angular.z = 0
+    #     pose_pub.publish(first_position)
+    #     cont= cont+1
+    #     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
+    #     print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
+    #     rospy.sleep(0.1)
+    # except rospy.ROSInterruptException:
+    #   print('final')
+
+    while not rospy.is_shutdown(): 
+
+      goal_aruco.linear.x = linearx
+      goal_aruco.linear.y = lineary
+      goal_aruco.linear.z = linearz
+
+      goal_aruco.angular.x = angularx
+      goal_aruco.angular.y = angulary
+      goal_aruco.angular.z = angularz
+      
+
+      #print('linear X: {} - Y: {} - Z: {}'.format(linearx, lineary, linearz))
+      #print('P: {} - R: {} - Y: {}'.format(angularx, angulary, angularz))
+
+      print('X: {} - Y: {} - Z: {}'.format(goal_aruco.linear.x, goal_aruco.linear.y, goal_aruco.linear.z))
+      print('P: {} - R: {} - Y: {}'.format(goal_aruco.angular.x, goal_aruco.angular.y, goal_aruco.angular.z))
+      rate.sleep()
+
+###############################################################################
+   
+if __name__ == '__main__':
+  settings = termios.tcgetattr(sys.stdin)
+
+  rospy.init_node('landing_aruco')
+  pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
+  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
+  pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
+  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 10) # add a publisher for each new topic
+  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 10)    # add a publisher for each new topic
+  empty_msg = Empty() 
+
+  rate = rospy.Rate(10) #-- 10Hz
+
+  print('init programm')
+  first_flight = True
+
+  try:
+    while(1):
+      key = getKey()
+      print('key')  # add a print for each key pressed
+      print(key)
+
+      if key == '1': # condition created in order to pressed key 1 and generates the take off of the bebop2
+        print('key 1 pressionado - takeoff')
+        takeoff_pub.publish(empty_msg) # action to publish it
+
+      elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
+        print('key 2 pressionado - landing')
+        land_pub.publish(empty_msg) # action to publish it 
+
+      elif key == '3': # condition created in order to pressed key 3 and generates the land of the bebop2
+        print('key 3 pressionado - moveUp')
+        moveUp()
+
+      elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
+        print('key 4 pressionado - moveDown')
+        moveDown()
+
+      elif key == '5':
+        print('key 5 pressionado - move2Aruco')  
+
+      else:
+        x = 0
+        y = 0
+        z = 0
+        th = 0
+        if (key == '\x03'):
+          print('Finish work')
+          break
+  except rospy.ROSInterruptException:
+    print('Erro')
+
