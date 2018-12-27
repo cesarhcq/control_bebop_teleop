@@ -57,6 +57,8 @@ def moveUp():
   
   first_position = Twist()
 
+  cont = 0
+
   while cont < 200:
 
       #-- set camera, look to down
@@ -78,7 +80,7 @@ def moveUp():
     cont= cont+1
 
     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
-    print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
+    #print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
     #rospy.sleep(0.5)
     rate.sleep()
 
@@ -91,7 +93,9 @@ def moveDown():
   
   first_position = Twist()
 
-  while cont < 200:
+  cont = 0
+
+  while cont < 180:
 
       #-- set camera, look to down
     cam_twist.angular.x = 0
@@ -112,63 +116,76 @@ def moveDown():
     cont= cont+1
 
     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
-    print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
+    #print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
     #rospy.sleep(0.5)
     rate.sleep()
 
   ###############################################################################
 
-  def move2Aruco():
-    global first_flight, cont
+def move2Aruco():
+  global first_flight, cont
+
+  k=0.005
+  ki=0.005
+  eyawp = 0
+
+  goal_aruco = Twist()
+  
+  while not rospy.is_shutdown(): 
+
+    #goal_aruco.linear.x = linearx
+    #goal_aruco.linear.y = lineary
+    #goal_aruco.linear.z = linearz
+
+    #goal_aruco.angular.x = angularx
+    #goal_aruco.angular.y = angulary
+    # if angularz>5 and angularz>0:
+    #   uyaw = k*angularz+(angularz+eyawp)*ki
+    #   eyawp = angularz
+    #   print('anti-horario')
+    # elif angularz<-5 and angularz<0:
+    #   uyaw = k*angularz+(angularz+eyawp)*ki
+    #   eyawp = angularz
+    #   print('horario')
+    # else:
+    #   uyaw = 0
+    #   print('zerado')
+
+    if abs(angularz)>2:
+      uyaw = k*angularz+(angularz+eyawp)*ki
+      eyawp = angularz
+      print('correcao')
+    else:
+      uyaw = 0
+      print('zerado')
+
+    goal_aruco.angular.z = uyaw
+    pose_pub.publish(goal_aruco)
     
-    goal_aruco = Twist()
-    
-    # first_position = Twist()
-    
-    #   while cont < 10000:
-    #     print('init while')
-    #     first_position.linear.x = 0
-    #     first_position.linear.y = 0
-    #     first_position.linear.z = -1
 
-    #     first_position.angular.x = 0
-    #     first_position.angular.y = 0
-    #     first_position.angular.z = 0
-    #     pose_pub.publish(first_position)
-    #     cont= cont+1
-    #     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
-    #     print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
-    #     rospy.sleep(0.1)
-    # except rospy.ROSInterruptException:
-    #   print('final')
+    #print('linear X: {} - Y: {} - Z: {}'.format(linearx, lineary, linearz))
+    print('P: {} - R: {} - Y: {} - ErroYaw: {}'.format(angularx, angulary, angularz, uyaw))
 
-    while not rospy.is_shutdown(): 
 
-      goal_aruco.linear.x = linearx
-      goal_aruco.linear.y = lineary
-      goal_aruco.linear.z = linearz
-
-      goal_aruco.angular.x = angularx
-      goal_aruco.angular.y = angulary
-      goal_aruco.angular.z = angularz
-      
-
-      #print('linear X: {} - Y: {} - Z: {}'.format(linearx, lineary, linearz))
-      #print('P: {} - R: {} - Y: {}'.format(angularx, angulary, angularz))
-
-      print('X: {} - Y: {} - Z: {}'.format(goal_aruco.linear.x, goal_aruco.linear.y, goal_aruco.linear.z))
-      print('P: {} - R: {} - Y: {}'.format(goal_aruco.angular.x, goal_aruco.angular.y, goal_aruco.angular.z))
-      rate.sleep()
+    #print('X: {} - Y: {} - Z: {}'.format(goal_aruco.linear.x, goal_aruco.linear.y, goal_aruco.linear.z))
+    #print('P: {} - R: {} - Y: {}'.format(goal_aruco.angular.x, goal_aruco.angular.y, goal_aruco.angular.z))
+    rate.sleep()
 
 ###############################################################################
    
 if __name__ == '__main__':
   settings = termios.tcgetattr(sys.stdin)
-
   rospy.init_node('landing_aruco')
+
   pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
+
+
+
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
   pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
+
+
+
   takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 10) # add a publisher for each new topic
   land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 10)    # add a publisher for each new topic
   empty_msg = Empty() 
@@ -201,7 +218,8 @@ if __name__ == '__main__':
         moveDown()
 
       elif key == '5':
-        print('key 5 pressionado - move2Aruco')  
+        print('key 5 pressionado - move2Aruco') 
+        move2Aruco()
 
       else:
         x = 0

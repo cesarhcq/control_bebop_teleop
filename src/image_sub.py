@@ -170,8 +170,8 @@ class aruco_data:
       cv2.putText(src_image, str_position, (0, 20), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
       
       #-- Print the marker's attitude respect to camera frame
-      str_attitude = "MARKER Attitude r=%4.0f  p=%4.0f  y=%4.0f"%(math.degrees(roll_marker),
-        math.degrees(pitch_marker), math.degrees(yaw_marker))
+      str_attitude = "MARKER Attitude p=%4.0f  r=%4.0f  y=%4.0f"%(math.degrees(pitch_marker), math.degrees(roll_marker),
+                          math.degrees(yaw_marker))
       cv2.putText(src_image, str_attitude, (0, 40), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
 
       ###############################################################################
@@ -181,7 +181,7 @@ class aruco_data:
       cv2.putText(src_image, str_position, (0, 70), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
       #-- Get the attitude of the camera respect to the frame
-      str_attitude = "CAMERA Attitude r=%4.0f  p=%4.0f  y=%4.0f"%(math.degrees(roll_camera),math.degrees(pitch_camera),
+      str_attitude = "CAMERA Attitude p=%4.0f  r=%4.0f  y=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
                           math.degrees(yaw_camera))
       cv2.putText(src_image, str_attitude, (0, 90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
@@ -196,8 +196,8 @@ class aruco_data:
       twist.linear.y = tvec[1]
       twist.linear.z = tvec[2]
 
-      twist.angular.x = math.degrees(roll_camera)
-      twist.angular.y = math.degrees(pitch_camera)
+      twist.angular.x = math.degrees(pitch_camera)
+      twist.angular.y = math.degrees(roll_camera)
       twist.angular.z = math.degrees(yaw_camera)
 
     else:
