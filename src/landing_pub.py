@@ -131,25 +131,7 @@ def move2Aruco():
 
   goal_aruco = Twist()
   
-  while not rospy.is_shutdown(): 
-
-    #goal_aruco.linear.x = linearx
-    #goal_aruco.linear.y = lineary
-    #goal_aruco.linear.z = linearz
-
-    #goal_aruco.angular.x = angularx
-    #goal_aruco.angular.y = angulary
-    # if angularz>5 and angularz>0:
-    #   uyaw = k*angularz+(angularz+eyawp)*ki
-    #   eyawp = angularz
-    #   print('anti-horario')
-    # elif angularz<-5 and angularz<0:
-    #   uyaw = k*angularz+(angularz+eyawp)*ki
-    #   eyawp = angularz
-    #   print('horario')
-    # else:
-    #   uyaw = 0
-    #   print('zerado')
+  while not rospy.is_shutdown():
 
     if abs(angularz)>2:
       uyaw = k*angularz+(angularz+eyawp)*ki
