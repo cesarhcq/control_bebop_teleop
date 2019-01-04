@@ -123,34 +123,81 @@ def moveDown():
   ###############################################################################
 
 def move2Aruco():
-  global first_flight, cont
 
+  # z data orientation
   k=0.005
   ki=0.005
   eyawp = 0
 
+  # x data translation
+
+  k_x = 0.001
+  k_i_x = 0.0003
+  exp = 0
+
+  # y data translation
+
+  k_y = 0.001
+  k_i_y = 0.0003
+  eyp = 0
+
   goal_aruco = Twist()
+  empty_msg = Empty()
   
   while not rospy.is_shutdown():
 
-    if abs(angularz)>2:
+    if abs(angularz) > 2:
       uyaw = k*angularz+(angularz+eyawp)*ki
       eyawp = angularz
-      print('correcao')
+      print('correcao yaw')
     else:
       uyaw = 0
-      print('zerado')
+      print('zerado yaw')
+
+  # Condition for translation in X
+
+    if abs(linearx) > 10 and abs(angularz) <= 2:
+      u_x = k_x*linearx + (linearx+exp)*k_i_x
+      exp = linearx
+      print('correcao x')
+    else:
+      u_x = 0
+      print('zerado x')
+
+  # Condition for translation in y
+
+    if lineary > 20 or lineary < 10 and abs(angularz) <= 2:
+      u_y = k_y*lineary + (lineary+eyp)*k_i_y
+      eyp = lineary
+      u_y = u_y
+      print('correcao y')
+    else:
+      u_y = 0
+      print('zerado y')
+
+  # Condition for translation in z
+
+    if abs(linearz) > 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
+      u_z = -0.5
+      print('correcao z')
+    else:
+      u_z = 0
+      print('zerado z')
+
+
+    print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
+
+    goal_aruco.linear.y = u_x
+    goal_aruco.linear.x = -u_y
+    goal_aruco.linear.z = u_z
 
     goal_aruco.angular.z = uyaw
     pose_pub.publish(goal_aruco)
-    
 
-    #print('linear X: {} - Y: {} - Z: {}'.format(linearx, lineary, linearz))
-    print('P: {} - R: {} - Y: {} - ErroYaw: {}'.format(angularx, angulary, angularz, uyaw))
+    if abs(linearz) <= 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
+      land_pub.publish(empty_msg)
+      print('landing now!')
 
-
-    #print('X: {} - Y: {} - Z: {}'.format(goal_aruco.linear.x, goal_aruco.linear.y, goal_aruco.linear.z))
-    #print('P: {} - R: {} - Y: {}'.format(goal_aruco.angular.x, goal_aruco.angular.y, goal_aruco.angular.z))
     rate.sleep()
 
 ###############################################################################
