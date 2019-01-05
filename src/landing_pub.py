@@ -26,6 +26,19 @@ angularz = 0
 first_flight = True
 cont = 0
 
+msg = """
+Keyboard commands for Autonomous Landing of the Quadcopter
+----------------------------------------------------------
+TakeOff    - Press 1
+Landing    - Press 2
+MoveUp     - Press 3
+MoveDown   - Press 4
+Move2Aruco - Press 5
+----------------------------------------------------------
+
+Ctrl + C to quit
+"""
+
 ###############################################################################
 
 def getKey():
@@ -196,7 +209,7 @@ def move2Aruco():
 
     if abs(linearz) <= 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
       land_pub.publish(empty_msg)
-      print('landing now!')
+      print('Landing Performed!')
 
     rate.sleep()
 
@@ -221,7 +234,9 @@ if __name__ == '__main__':
 
   rate = rospy.Rate(10) #-- 10Hz
 
-  print('init programm')
+  print('Program Started')
+  print(msg)
+
   first_flight = True
 
   try:
@@ -231,23 +246,23 @@ if __name__ == '__main__':
       print(key)
 
       if key == '1': # condition created in order to pressed key 1 and generates the take off of the bebop2
-        print('key 1 pressionado - takeoff')
+        print('key 1 pressed - takeoff')
         takeoff_pub.publish(empty_msg) # action to publish it
 
       elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
-        print('key 2 pressionado - landing')
+        print('key 2 pressed - landing')
         land_pub.publish(empty_msg) # action to publish it 
 
       elif key == '3': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 3 pressionado - moveUp')
+        print('key 3 pressed - moveUp')
         moveUp()
 
       elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
-        print('key 4 pressionado - moveDown')
+        print('key 4 pressed - moveDown')
         moveDown()
 
       elif key == '5':
-        print('key 5 pressionado - move2Aruco') 
+        print('key 5 pressed - move2Aruco') 
         move2Aruco()
 
       else:
