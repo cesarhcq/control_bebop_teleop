@@ -97,7 +97,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 17.2 #-cm
+    marker_size = 70 #-cm 17.2
 
     msg = "Trying to find"
 
@@ -152,7 +152,7 @@ class aruco_data:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 15)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 30)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
@@ -205,6 +205,7 @@ class aruco_data:
       twist.angular.z = math.degrees(yaw_camera)
 
       msg = "Aruco Found!"
+      print('Id detected!')
 
     else:
       print('No Id detected!')
@@ -222,9 +223,10 @@ class aruco_data:
     try:
       self.pose_pub.publish(twist)
       self.msg_pub.publish(msg)
+      #print('Node is publishing')
     except:
       self.msg_pub.publish(msg)
-      print('Node is not publishing')
+      #print('Node is not publishing')
 
 ###############################################################################
 

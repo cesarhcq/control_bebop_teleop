@@ -36,7 +36,8 @@ TakeOff      - Press 1
 Landing      - Press 2
 MoveCamera   - Press 3
 MoveUp       - Press 4
-Auto-Landing - Press 5
+MoveDown     - Press 5
+Auto-Landing - Press 6
 ----------------------------------------------------------
 Ctrl + C to quit
 """
@@ -56,13 +57,14 @@ def moveCamera():
 
   cam_twist = Twist()
 
-  for angle in range(0,-90,-1):
-    #-- set camera, look to down
-    cam_twist.angular.x = 0
-    cam_twist.angular.y = angle
-    cam_twist.angular.z = 0
-    cam_pub.publish(cam_twist)
-    print('angle: ',angle)
+  #-- set camera, look to down
+  cam_twist.angular.x = 0
+  cam_twist.angular.y = -90
+  cam_twist.angular.z = 0
+  cam_pub.publish(cam_twist)
+  print('angle: ',cam_twist.angular.y)
+
+  return cam_twist.angular.y
 
 ###############################################################################
 
@@ -106,11 +108,9 @@ def moveUp():
     first_position.angular.z = 0
     pose_pub.publish(first_position)
 
-    cont= cont+1
+    cont += 1
 
     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
-    #print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
-    #rospy.sleep(0.5)
     rate.sleep()
 
  ###############################################################################
@@ -122,7 +122,7 @@ def moveDown():
 
   cont = 0
 
-  while cont < 180:
+  while cont < 100:
 
     print('init cont: ', cont)
     first_position.linear.x = 0
@@ -132,13 +132,11 @@ def moveDown():
     first_position.angular.x = 0
     first_position.angular.y = 0
     first_position.angular.z = 0
-    #pose_pub.publish(first_position)
+    pose_pub.publish(first_position)
 
-    cont= cont+1
+    cont += 1
 
     print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
-    #print('P: {} - R: {} - Y: {}'.format(first_position.angular.x, first_position.angular.y, first_position.angular.z))
-    #rospy.sleep(0.5)
     rate.sleep()
 
   ###############################################################################
@@ -163,13 +161,14 @@ def move2Aruco():
   k_i_y = 0.0003
   eyp = 0
 
-  cam_twist = Twist()
   goal_aruco = Twist()
   empty_msg = Empty()
+
+  angle_camera = moveCamera()
   
   while not rospy.is_shutdown():
 
-    if msg_aruco == "Aruco Found!"
+    if msg_aruco == "Aruco Found!" and angle_camera == -90:
       # Condition for translation in Yaw
 
       if abs(angularz) > 2:
@@ -182,7 +181,7 @@ def move2Aruco():
 
       # Condition for translation in X
 
-      if abs(linearx) > 10 and abs(angularz) <= 2:
+      if abs(linearx) > 20 and abs(angularz) <= 2:
         u_x = k_x*linearx + (linearx+exp)*k_i_x
         exp = linearx
         print('correcting translation X')
@@ -192,7 +191,7 @@ def move2Aruco():
 
       # Condition for translation in y
 
-      if (lineary < 10 or lineary > 30) and abs(angularz) <= 2:
+      if abs(lineary) > 20 and abs(angularz) <= 2:
         u_y = k_y*lineary + (lineary+eyp)*k_i_y
         eyp = lineary
         u_y = u_y
@@ -201,36 +200,47 @@ def move2Aruco():
         u_y = 0
         print('Y close to 0')
 
-    # Condition for translation in z
+      # Condition for translation in z
 
-      if abs(linearz) > 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
-        u_z = -0.5
+      if abs(linearz) > 140 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
+        u_z = -1.0
         print('correcting translation Z')
       else:
         u_z = 0
         print('Z close to 0')
 
+      # Condition landing
+
+      if abs(linearz) <= 190 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
+        goal_aruco.linear.x = -20 #frete
+        pose_pub.publish(goal_aruco)
+        print('Auto-Landing Performed1!')
+
+      if abs(linearz) <= 140 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
+        land_pub.publish(empty_msg)
+        print('Auto-Landing Performed2!')
 
       print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
 
-      #goal_aruco.linear.y = u_x
-      #goal_aruco.linear.x = -u_y
-      #goal_aruco.linear.z = u_z
+      goal_aruco.linear.y = u_x
+      goal_aruco.linear.x = -u_y
+      goal_aruco.linear.z = u_z
 
+      goal_aruco.angular.z = uyaw
+      pose_pub.publish(goal_aruco)
+
+    else:
+      print('Auto-Landing not Performed!')
       goal_aruco.linear.y = 0
       goal_aruco.linear.x = 0
       goal_aruco.linear.z = 0
 
       goal_aruco.angular.x = 0
       goal_aruco.angular.y = 0
-      goal_aruco.angular.z = uyaw
+      goal_aruco.angular.z = 0
       pose_pub.publish(goal_aruco)
 
-      if msg_aruco == "Aruco Found!" abs(linearz) <= 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
-        land_pub.publish(empty_msg)
-        print('Landing Performed!')
-
-      rate.sleep()
+    rate.sleep()
 
 ###############################################################################
    
@@ -265,37 +275,35 @@ if __name__ == '__main__':
       print(key)
 
       if key == '1': # condition created in order to pressed key 1 and generates the take off of the bebop2
-        print('key 1 pressed - takeoff')
+        print('key 1 pressed - Takeoff')
         takeoff_pub.publish(empty_msg) # action to publish it
 
       elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
-        print('key 2 pressed - landing')
+        print('key 2 pressed - Landing')
         land_pub.publish(empty_msg) # action to publish it
 
       elif key == '3': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 3 pressed - moveCamera')
+        print('key 3 pressed - MoveCamera')
         moveCamera()
 
       elif key == '4': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 4 pressed - moveUp')
+        print('key 4 pressed - MoveUp')
         moveUp()
 
-      # elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
-      #   print('key 4 pressed - moveDown')
-      #   moveDown()
+      elif key == '5': # condition created in order to pressed key 4 and generates the land of the bebop2
+        print('key 5 pressed - MoveDown')
+        moveDown()
 
-      elif key == '5':
-        print('key 5 pressed - move2Aruco') 
+      elif key == '6':
+        print('key 6 pressed - Auto-Landing') 
         move2Aruco()
 
-      else:
-        x = 0
-        y = 0
-        z = 0
-        th = 0
-        print('Wrong key!')
-        if (key == '\x03'):
-          print('Finish work')
+      elif key == '\x03':
+          print('Quit work')
           break
+
+      else:
+        print('Wrong key!')
+      
   except rospy.ROSInterruptException:
     print('Erro')
