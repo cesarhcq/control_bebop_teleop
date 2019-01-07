@@ -33,9 +33,8 @@ TakeOff    - Press 1
 Landing    - Press 2
 MoveUp     - Press 3
 MoveDown   - Press 4
-Move2Aruco - Press 5
+Auto-Landing - Press 5
 ----------------------------------------------------------
-
 Ctrl + C to quit
 """
 
@@ -74,7 +73,7 @@ def moveUp():
 
   while cont < 200:
 
-      #-- set camera, look to down
+    #-- set camera, look to down
     cam_twist.angular.x = 0
     cam_twist.angular.y = -90
     cam_twist.angular.z = 0
@@ -154,61 +153,70 @@ def move2Aruco():
   k_i_y = 0.0003
   eyp = 0
 
+  cam_twist = Twist()
   goal_aruco = Twist()
   empty_msg = Empty()
   
   while not rospy.is_shutdown():
 
+    #-- set camera, look to down
+    cam_twist.angular.x = 0
+    cam_twist.angular.y = -90
+    cam_twist.angular.z = 0
+    cam_pub.publish(cam_twist)
+
     if abs(angularz) > 2:
       uyaw = k*angularz+(angularz+eyawp)*ki
       eyawp = angularz
-      print('correcao yaw')
+      print('correcting rotation Yaw')
     else:
       uyaw = 0
-      print('zerado yaw')
+      print('Yaw close to 0')
 
   # Condition for translation in X
 
     if abs(linearx) > 10 and abs(angularz) <= 2:
       u_x = k_x*linearx + (linearx+exp)*k_i_x
       exp = linearx
-      print('correcao x')
+      print('correcting translation X')
     else:
       u_x = 0
-      print('zerado x')
+      print('X close to 0')
 
   # Condition for translation in y
 
-    if lineary > 20 or lineary < 10 and abs(angularz) <= 2:
+    if (lineary < 10 or lineary > 30) and abs(angularz) <= 2:
       u_y = k_y*lineary + (lineary+eyp)*k_i_y
       eyp = lineary
       u_y = u_y
-      print('correcao y')
+      print('correcting translation Y')
     else:
       u_y = 0
-      print('zerado y')
+      print('Y close to 0')
 
   # Condition for translation in z
 
-    if abs(linearz) > 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
+    if abs(linearz) > 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
       u_z = -0.5
-      print('correcao z')
+      print('correcting translation Z')
     else:
       u_z = 0
-      print('zerado z')
+      print('Z close to 0')
 
 
     print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
 
-    goal_aruco.linear.y = u_x
-    goal_aruco.linear.x = -u_y
-    goal_aruco.linear.z = u_z
+    #goal_aruco.linear.y = u_x
+    #goal_aruco.linear.x = -u_y
+    #goal_aruco.linear.z = u_z
 
+    goal_aruco.angular.x = 0
+    goal_aruco.angular.y = 0
     goal_aruco.angular.z = uyaw
     pose_pub.publish(goal_aruco)
 
     if abs(linearz) <= 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
-      land_pub.publish(empty_msg)
+      #land_pub.publish(empty_msg)
       print('Landing Performed!')
 
     rate.sleep()
@@ -275,4 +283,3 @@ if __name__ == '__main__':
           break
   except rospy.ROSInterruptException:
     print('Erro')
-

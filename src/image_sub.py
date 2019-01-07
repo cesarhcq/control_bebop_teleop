@@ -95,7 +95,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 70 #-cm
+    marker_size = 17.2 #-cm
 
     #-- Define the Aruco dictionary\n",
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -148,7 +148,7 @@ class aruco_data:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 30)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 15)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
