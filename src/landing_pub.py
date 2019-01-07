@@ -14,6 +14,7 @@ import numpy as np
 import cv2.aruco as aruco
 from std_msgs.msg import Empty
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 linearx = 0
 lineary = 0
@@ -23,16 +24,18 @@ angularx = 0
 angulary = 0
 angularz = 0
 
+msg_aruco = "Empty"
+
 first_flight = True
 cont = 0
 
 msg = """
 Keyboard commands for Autonomous Landing of the Quadcopter
 ----------------------------------------------------------
-TakeOff    - Press 1
-Landing    - Press 2
-MoveUp     - Press 3
-MoveDown   - Press 4
+TakeOff      - Press 1
+Landing      - Press 2
+MoveCamera   - Press 3
+MoveUp       - Press 4
 Auto-Landing - Press 5
 ----------------------------------------------------------
 Ctrl + C to quit
@@ -49,6 +52,20 @@ def getKey():
 
 ###############################################################################
 
+def moveCamera():
+
+  cam_twist = Twist()
+
+  for angle in range(0,-90,-1):
+    #-- set camera, look to down
+    cam_twist.angular.x = 0
+    cam_twist.angular.y = angle
+    cam_twist.angular.z = 0
+    cam_pub.publish(cam_twist)
+    print('angle: ',angle)
+
+###############################################################################
+
 def callback(data):
   global linearx, lineary, linearz, angularx, angulary, angularz
 
@@ -62,32 +79,32 @@ def callback(data):
 
 ###############################################################################
 
+def callback_msg(data2):
+  global msg_aruco
+
+  msg_aruco = data2.data
+
+###############################################################################
+
 def moveUp():
   global cont
 
-  cam_twist = Twist()
-  
   first_position = Twist()
 
   cont = 0
 
-  while cont < 50:
-
-    #-- set camera, look to down
-    cam_twist.angular.x = 0
-    cam_twist.angular.y = -90
-    cam_twist.angular.z = 0
-    cam_pub.publish(cam_twist)
+  while cont < 200:
 
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = 0
+    first_position.linear.z = 1 # first_position.linear.z = 1 para subir
+
 
     first_position.angular.x = 0
     first_position.angular.y = 0
     first_position.angular.z = 0
-    #pose_pub.publish(first_position)
+    pose_pub.publish(first_position)
 
     cont= cont+1
 
@@ -100,20 +117,12 @@ def moveUp():
 
 def moveDown():
   global cont
-
-  cam_twist = Twist()
   
   first_position = Twist()
 
   cont = 0
 
   while cont < 180:
-
-      #-- set camera, look to down
-    cam_twist.angular.x = 0
-    cam_twist.angular.y = -90
-    cam_twist.angular.z = 0
-    cam_pub.publish(cam_twist)
 
     print('init cont: ', cont)
     first_position.linear.x = 0
@@ -135,6 +144,7 @@ def moveDown():
   ###############################################################################
 
 def move2Aruco():
+  global msg_aruco
 
   # z data orientation
   k=0.005
@@ -159,71 +169,68 @@ def move2Aruco():
   
   while not rospy.is_shutdown():
 
-    #-- set camera, look to down
-    cam_twist.angular.x = 0
-    cam_twist.angular.y = -90
-    cam_twist.angular.z = 0
-    cam_pub.publish(cam_twist)
+    if msg_aruco == "Aruco Found!"
+      # Condition for translation in Yaw
 
-    if abs(angularz) > 2:
-      uyaw = k*angularz+(angularz+eyawp)*ki
-      eyawp = angularz
-      print('correcting rotation Yaw')
-    else:
-      uyaw = 0
-      print('Yaw close to 0')
+      if abs(angularz) > 2:
+        uyaw = k*angularz+(angularz+eyawp)*ki
+        eyawp = angularz
+        print('correcting rotation Yaw')
+      else:
+        uyaw = 0
+        print('Yaw close to 0')
 
-  # Condition for translation in X
+      # Condition for translation in X
 
-    if abs(linearx) > 10 and abs(angularz) <= 2:
-      u_x = k_x*linearx + (linearx+exp)*k_i_x
-      exp = linearx
-      print('correcting translation X')
-    else:
-      u_x = 0
-      print('X close to 0')
+      if abs(linearx) > 10 and abs(angularz) <= 2:
+        u_x = k_x*linearx + (linearx+exp)*k_i_x
+        exp = linearx
+        print('correcting translation X')
+      else:
+        u_x = 0
+        print('X close to 0')
 
-  # Condition for translation in y
+      # Condition for translation in y
 
-    if (lineary < 10 or lineary > 30) and abs(angularz) <= 2:
-      u_y = k_y*lineary + (lineary+eyp)*k_i_y
-      eyp = lineary
-      u_y = u_y
-      print('correcting translation Y')
-    else:
-      u_y = 0
-      print('Y close to 0')
+      if (lineary < 10 or lineary > 30) and abs(angularz) <= 2:
+        u_y = k_y*lineary + (lineary+eyp)*k_i_y
+        eyp = lineary
+        u_y = u_y
+        print('correcting translation Y')
+      else:
+        u_y = 0
+        print('Y close to 0')
 
-  # Condition for translation in z
+    # Condition for translation in z
 
-    if abs(linearz) > 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
-      u_z = -0.5
-      print('correcting translation Z')
-    else:
-      u_z = 0
-      print('Z close to 0')
+      if abs(linearz) > 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
+        u_z = -0.5
+        print('correcting translation Z')
+      else:
+        u_z = 0
+        print('Z close to 0')
 
 
-    print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
+      print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
 
-    #goal_aruco.linear.y = u_x
-    #goal_aruco.linear.x = -u_y
-    #goal_aruco.linear.z = u_z
+      #goal_aruco.linear.y = u_x
+      #goal_aruco.linear.x = -u_y
+      #goal_aruco.linear.z = u_z
 
-    goal_aruco.linear.y = 0
-    goal_aruco.linear.x = 0
-    goal_aruco.linear.z = 0
+      goal_aruco.linear.y = 0
+      goal_aruco.linear.x = 0
+      goal_aruco.linear.z = 0
 
-    goal_aruco.angular.x = 0
-    goal_aruco.angular.y = 0
-    goal_aruco.angular.z = uyaw
-    pose_pub.publish(goal_aruco)
+      goal_aruco.angular.x = 0
+      goal_aruco.angular.y = 0
+      goal_aruco.angular.z = uyaw
+      pose_pub.publish(goal_aruco)
 
-    if abs(linearz) <= 120 and lineary >= 20 or lineary <= 10 and abs(linearx) <= 10 and abs(angularz) <= 2:
-      #land_pub.publish(empty_msg)
-      print('Landing Performed!')
+      if msg_aruco == "Aruco Found!" abs(linearz) <= 120 and (lineary >= 10 or lineary <= 30) and abs(linearx) <= 10 and abs(angularz) <= 2:
+        land_pub.publish(empty_msg)
+        print('Landing Performed!')
 
-    rate.sleep()
+      rate.sleep()
 
 ###############################################################################
    
@@ -232,7 +239,7 @@ if __name__ == '__main__':
   rospy.init_node('landing_aruco')
 
   pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
-
+  msg_sub = rospy.Subscriber("bebop/aruco_data_received",String, callback_msg)
 
 
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
@@ -263,10 +270,14 @@ if __name__ == '__main__':
 
       elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
         print('key 2 pressed - landing')
-        land_pub.publish(empty_msg) # action to publish it 
+        land_pub.publish(empty_msg) # action to publish it
 
       elif key == '3': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 3 pressed - moveUp')
+        print('key 3 pressed - moveCamera')
+        moveCamera()
+
+      elif key == '4': # condition created in order to pressed key 3 and generates the land of the bebop2
+        print('key 4 pressed - moveUp')
         moveUp()
 
       # elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
@@ -282,6 +293,7 @@ if __name__ == '__main__':
         y = 0
         z = 0
         th = 0
+        print('Wrong key!')
         if (key == '\x03'):
           print('Finish work')
           break

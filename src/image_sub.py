@@ -15,6 +15,7 @@ import cv2.aruco as aruco
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 ###############################################################################
 #------- ROTATIONS https://www.learnopencv.com/rotation-matrix-to-euler-angles/
@@ -83,7 +84,8 @@ class aruco_data:
     #self.image_pub = rospy.Publisher("bebop2/camera_base/image_aruco",Image, queue_size=10)
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=10)    
+    self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=10)
+    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=10)   
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
@@ -96,6 +98,8 @@ class aruco_data:
     #-- Define Tag\n",
     id_to_find = 1
     marker_size = 17.2 #-cm
+
+    msg = "Trying to find"
 
     #-- Define the Aruco dictionary\n",
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -200,8 +204,11 @@ class aruco_data:
       twist.angular.y = math.degrees(roll_camera)
       twist.angular.z = math.degrees(yaw_camera)
 
+      msg = "Aruco Found!"
+
     else:
-      print('Aruco not detected!')
+      print('No Id detected!')
+      msg = "Aruco Not Found!"
       #-- Display the resulting frame\n",
       cv2.imshow("Image-Aruco",src_image)
       cv2.waitKey(2)
@@ -214,8 +221,10 @@ class aruco_data:
     #-- Publish the pose of marker of aruco to topics
     try:
       self.pose_pub.publish(twist)
+      self.msg_pub.publish(msg)
     except:
-      print('Can not find aruco marker!')
+      self.msg_pub.publish(msg)
+      print('Node is not publishing')
 
 ###############################################################################
 
