@@ -71,7 +71,7 @@ def moveUp():
 
   cont = 0
 
-  while cont < 200:
+  while cont < 50:
 
     #-- set camera, look to down
     cam_twist.angular.x = 0
@@ -82,12 +82,12 @@ def moveUp():
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = 1
+    first_position.linear.z = 0
 
     first_position.angular.x = 0
     first_position.angular.y = 0
     first_position.angular.z = 0
-    pose_pub.publish(first_position)
+    #pose_pub.publish(first_position)
 
     cont= cont+1
 
@@ -123,7 +123,7 @@ def moveDown():
     first_position.angular.x = 0
     first_position.angular.y = 0
     first_position.angular.z = 0
-    pose_pub.publish(first_position)
+    #pose_pub.publish(first_position)
 
     cont= cont+1
 
@@ -210,6 +210,10 @@ def move2Aruco():
     #goal_aruco.linear.x = -u_y
     #goal_aruco.linear.z = u_z
 
+    goal_aruco.linear.y = 0
+    goal_aruco.linear.x = 0
+    goal_aruco.linear.z = 0
+
     goal_aruco.angular.x = 0
     goal_aruco.angular.y = 0
     goal_aruco.angular.z = uyaw
@@ -265,9 +269,9 @@ if __name__ == '__main__':
         print('key 3 pressed - moveUp')
         moveUp()
 
-      elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
-        print('key 4 pressed - moveDown')
-        moveDown()
+      # elif key == '4': # condition created in order to pressed key 4 and generates the land of the bebop2
+      #   print('key 4 pressed - moveDown')
+      #   moveDown()
 
       elif key == '5':
         print('key 5 pressed - move2Aruco') 
