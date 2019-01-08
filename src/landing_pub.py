@@ -179,9 +179,9 @@ def move2Aruco():
         uyaw = 0
         print('Yaw close to 0')
 
-      # Condition for translation in X
+      # Condition for translation in X = 15
 
-      if abs(linearx) > 20 and abs(angularz) <= 2:
+      if abs(linearx) > 10 and abs(angularz) <= 2: # x=8
         u_x = k_x*linearx + (linearx+exp)*k_i_x
         exp = linearx
         print('correcting translation X')
@@ -191,10 +191,10 @@ def move2Aruco():
 
       # Condition for translation in y
 
-      if abs(lineary) > 20 and abs(angularz) <= 2:
+      if abs(lineary) > 8 and abs(angularz) <= 2: # y=6
         u_y = k_y*lineary + (lineary+eyp)*k_i_y
         eyp = lineary
-        u_y = u_y
+        u_y = u_y # ---????
         print('correcting translation Y')
       else:
         u_y = 0
@@ -202,8 +202,8 @@ def move2Aruco():
 
       # Condition for translation in z
 
-      if abs(linearz) > 140 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
-        u_z = -1.0
+      if abs(linearz) > 180 and abs(lineary) <= 8 and abs(linearx) <= 10 and abs(angularz) <= 2:
+        u_z = -0.5
         print('correcting translation Z')
       else:
         u_z = 0
@@ -211,14 +211,11 @@ def move2Aruco():
 
       # Condition landing
 
-      if abs(linearz) <= 190 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
-        goal_aruco.linear.x = -20 #frete
-        pose_pub.publish(goal_aruco)
-        print('Auto-Landing Performed1!')
-
-      if abs(linearz) <= 140 and abs(lineary) <= 20 and abs(linearx) <= 20 and abs(angularz) <= 2:
-        land_pub.publish(empty_msg)
-        print('Auto-Landing Performed2!')
+      # if abs(linearz) <= 160 and abs(lineary) <= 10 and abs(linearx) <= 8 and abs(angularz) <= 2:
+      #   goal_aruco.linear.x = -10
+      #   pose_pub.publish(goal_aruco)
+      #   land_pub.publish(empty_msg)
+      #   print('Auto-Landing Performed2!')
 
       print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
 
@@ -227,18 +224,25 @@ def move2Aruco():
       goal_aruco.linear.z = u_z
 
       goal_aruco.angular.z = uyaw
+
       pose_pub.publish(goal_aruco)
 
-    else:
-      print('Auto-Landing not Performed!')
-      goal_aruco.linear.y = 0
-      goal_aruco.linear.x = 0
-      goal_aruco.linear.z = 0
+      if abs(linearz) <= 180 and abs(lineary) <= 8 and abs(linearx) <= 10 and abs(angularz) <= 2:
+        goal_aruco.linear.x = 1.0
+        pose_pub.publish(goal_aruco)
+        land_pub.publish(empty_msg)
+        print('Auto-Landing Performed')
 
-      goal_aruco.angular.x = 0
-      goal_aruco.angular.y = 0
-      goal_aruco.angular.z = 0
-      pose_pub.publish(goal_aruco)
+    # else:
+    #   print('Auto-Landing not Performed!')
+    #   goal_aruco.linear.y = 0
+    #   goal_aruco.linear.x = 0
+    #   goal_aruco.linear.z = 0
+
+    #   goal_aruco.angular.x = 0
+    #   goal_aruco.angular.y = 0
+    #   goal_aruco.angular.z = 0
+    #   pose_pub.publish(goal_aruco)
 
     rate.sleep()
 

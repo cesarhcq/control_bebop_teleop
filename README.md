@@ -70,6 +70,47 @@ bebop_autonomy - ROS Driver for Parrot Bebop Drone (quadrocopter) 1.0 & 2.0
 
 bebop_autonomy is a ROS driver for Parrot Bebop 1.0 and 2.0 drones (quadrocopters), based on Parrot’s official ARDroneSDK3. This driver has been developed in Autonomy Lab of Simon Fraser University by Mani Monajjemi and other contributers. This software is maintained by Sepehr MohaimenianPour (AutonomyLab, Simon Fraser University), Thomas Bamford (Dynamic Systems Lab, University of Toronto) and Tobias Naegeli (Advanced Interactive Technologies Lab, ETH Zürich).
 
+#### If you don't have ROS workspace yet you can do so by ####
+
+```
+$ mkdir -p ~/bebop_ws/src && cd ~/bebop_ws
+$ catkin init
+$ git clone https://github.com/AutonomyLab/bebop_autonomy.git src/bebop_autonomy
+# Update rosdep database and install dependencies (including parrot_arsdk)
+$ rosdep update
+$ rosdep install --from-paths src -i
+# Build the workspace
+$ catkin build
+```
+
+#### Install the Sphinx Simulator according to the Sphinx-Guide ####
+
+```
+https://developer.parrot.com/docs/sphinx/installation.html
+```
+#### Clone this repository ####
+
+After Sphinx Installation, clone this repository:
+
+```
+$ cd ~/bebop_ws/src
+$ git clone https://github.com/cesarhcq/control_bebop_teleop.git
+```
+
+You will see the following paths:
+
+```
+ bebop_ws
+   |
+   |---> build
+   |---> devel
+   |---> logs
+   |---> src
+   |
+         |---> bebop_autonomy
+         |---> control_bebop
+```
+
 Just follow the wiki installation for Parrot 1.0 & 2.0
 
 ```
@@ -91,6 +132,10 @@ $ fdc ping
 
 PONG
 ```
+
+#### Important: Do not forget! You must reboot/start your computer, so the firmwared service will be working #####
+
+After reboot, repeat the previous procedure and you'll see the "PONG" message once.
 
 #### Check your wifi interface name ####
 
@@ -123,6 +168,14 @@ Change the parameter `<stole_interface>` according to your ifconfig result. In o
   <!-- 'wlan0' may need to be replaced the actual wifi interface name -->
   <stolen_interface>wlp3s0:eth0:192.168.42.1/24</stolen_interface>
 </drone>
+```
+
+Change the IP `<launch> = bebop_node.launch` according to Bebop IP. In our case is default="10.202.0.1".
+
+```
+$ cd ~/bebop_ws/src/bebop_autonomy/bebop_driver/launch/
+
+$ subl bebop_node.launch
 ```
 
 #### Start simulation ####
