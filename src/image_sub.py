@@ -82,7 +82,7 @@ fps_detect  = 0.0
 class aruco_data:
  
   def __init__(self):
-    #self.image_pub = rospy.Publisher("bebop2/camera_base/image_aruco",Image, queue_size=10)
+    self.image_pub = rospy.Publisher("bebop2/camera_base/image_aruco",Image, queue_size=100)
 
     #-- Create a publisher to topic "aruco_results"
     self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=100)
@@ -98,7 +98,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 70 #-cm 17.2
+    marker_size = 17.2 #-cm 17.2 70
 
     msg = "Trying to find"
 
@@ -198,7 +198,7 @@ class aruco_data:
 
       twist = Twist()
       twist.linear.x = -tvec[0]
-      twist.linear.y = tvec[1]-10
+      twist.linear.y = tvec[1]
       twist.linear.z = tvec[2]
 
       twist.angular.x = math.degrees(pitch_camera)

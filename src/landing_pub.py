@@ -57,15 +57,9 @@ def moveCamera():
 
   cam_twist = Twist()
 
-<<<<<<< HEAD
-  #-- set camera, look to down
-  cam_twist.angular.x = 0
-  cam_twist.angular.y = -90
-=======
   #-- set camera, look to dwn
   cam_twist.angular.x = 0
   cam_twist.angular.y = -84
->>>>>>> drone-real
   cam_twist.angular.z = 0
   cam_pub.publish(cam_twist)
   print('angle: ',cam_twist.angular.y)
@@ -128,11 +122,7 @@ def moveDown():
 
   cont = 0
 
-<<<<<<< HEAD
-  while cont < 100:
-=======
   while cont < 500:
->>>>>>> drone-real
 
     print('init cont: ', cont)
     first_position.linear.x = 0
@@ -154,33 +144,19 @@ def moveDown():
 def move2Aruco():
   global msg_aruco, lineary, landing
 
-<<<<<<< HEAD
-  # z data orientation
-=======
   # Yaw data orientation
->>>>>>> drone-real
   k=0.008
   ki=0.004
   eyawp = 0
 
   # x data translation
 
-<<<<<<< HEAD
-  k_x = 0.0009
-=======
   k_x = 0.001
->>>>>>> drone-real
   k_i_x = 0.0001
   exp = 0
 
   # y data translation
 
-<<<<<<< HEAD
-  k_y = 0.0009
-  k_i_y = 0.0001
-  eyp = 0
-
-=======
   k_y = 0.001
   k_i_y = 0.0001
   eyp = 0
@@ -189,7 +165,6 @@ def move2Aruco():
   tolerance_X = 5
   tolerance_Y = 10
 
->>>>>>> drone-real
   goal_aruco = Twist()
   empty_msg = Empty()
 
@@ -197,12 +172,8 @@ def move2Aruco():
   
   while landing:
 
-<<<<<<< HEAD
-    if msg_aruco == "Aruco Found!" and angle_camera == -90:
-=======
     if msg_aruco == "Aruco Found!" and angle_camera == -84:
       
->>>>>>> drone-real
       # Condition for translation in Yaw
       if abs(angularz) > tolerance_Yaw+linearz*0.001:
         uyaw = k*angularz+(angularz+eyawp)*ki
@@ -213,14 +184,8 @@ def move2Aruco():
         uyaw = 0
         print('Yaw close to 0')
 
-<<<<<<< HEAD
-      # Condition for translation in X = 15
-
-      if abs(linearx) > 10 and abs(angularz) <= 2: # x=8
-=======
       # Condition for translation in X
       if abs(linearx) > (tolerance_X+linearz*0.02):
->>>>>>> drone-real
         u_x = k_x*linearx + (linearx+exp)*k_i_x
         exp = linearx
         print('correcting translation X: {} - ux: {}'.format((tolerance_X+linearz*0.02),u_x))
@@ -229,76 +194,34 @@ def move2Aruco():
         print('X close to 0')
       
       # Condition for translation in y
-<<<<<<< HEAD
-
-      if abs(lineary) > 8 and abs(angularz) <= 2: # y=6
-        u_y = k_y*lineary + (lineary+eyp)*k_i_y
-        eyp = lineary
-        u_y = u_y # ---????
-        print('correcting translation Y')
-=======
       if abs(lineary) > (tolerance_Y+linearz*0.02):
         u_y = k_y*lineary + (lineary+eyp)*k_i_y
         eyp = lineary
         u_y = u_y
         print('correcting translation Y: {} - uy: {}'.format((tolerance_Y+linearz*0.02),u_y))
->>>>>>> drone-real
       else:
         u_y = 0
         print('Y close to 0')
 
-<<<<<<< HEAD
-      # Condition for translation in z
-
-      if abs(linearz) > 180 and abs(lineary) <= 8 and abs(linearx) <= 10 and abs(angularz) <= 2:
-        u_z = -0.5
-        print('correcting translation Z')
-=======
 
       # Condition for translation in z
       if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
         u_z = -1.0
         print('correcting translation Z:',linearz)
         #print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
->>>>>>> drone-real
       else:
         u_z = 0
         print('Z close to 0')
 
-<<<<<<< HEAD
-      # Condition landing
-
-      # if abs(linearz) <= 160 and abs(lineary) <= 10 and abs(linearx) <= 8 and abs(angularz) <= 2:
-      #   goal_aruco.linear.x = -10
-      #   pose_pub.publish(goal_aruco)
-      #   land_pub.publish(empty_msg)
-      #   print('Auto-Landing Performed2!')
-=======
       # Command of actuation
       goal_aruco.linear.y = u_x
       goal_aruco.linear.x = -u_y
       goal_aruco.linear.z = u_z
->>>>>>> drone-real
 
       goal_aruco.angular.x = 0
       goal_aruco.angular.y = 0
       goal_aruco.angular.z = uyaw
 
-<<<<<<< HEAD
-      goal_aruco.linear.y = u_x
-      goal_aruco.linear.x = -u_y
-      goal_aruco.linear.z = u_z
-
-      goal_aruco.angular.z = uyaw
-
-      pose_pub.publish(goal_aruco)
-
-      if abs(linearz) <= 180 and abs(lineary) <= 8 and abs(linearx) <= 10 and abs(angularz) <= 2:
-        goal_aruco.linear.x = 0.3
-        pose_pub.publish(goal_aruco)
-        land_pub.publish(empty_msg)
-        print('Auto-Landing Performed')
-=======
       pose_pub.publish(goal_aruco)
 
       # Condition landing
@@ -308,7 +231,6 @@ def move2Aruco():
         land_pub.publish(empty_msg)
         print('Auto-Landing Performed2!')
         landing = False
->>>>>>> drone-real
         break
 
     else:
@@ -322,11 +244,8 @@ def move2Aruco():
       goal_aruco.angular.z = 0
       pose_pub.publish(goal_aruco)
 
-<<<<<<< HEAD
-=======
 
     print('---------------------------------')
->>>>>>> drone-real
     rate.sleep()
 
 ###############################################################################
@@ -366,30 +285,6 @@ if __name__ == '__main__':
         print('key 2 pressed - Landing')
         land_pub.publish(empty_msg) # action to publish it
 
-<<<<<<< HEAD
-      elif key == '3': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 3 pressed - MoveCamera')
-        moveCamera()
-
-      elif key == '4': # condition created in order to pressed key 3 and generates the land of the bebop2
-        print('key 4 pressed - MoveUp')
-        moveUp()
-
-      elif key == '5': # condition created in order to pressed key 4 and generates the land of the bebop2
-        print('key 5 pressed - MoveDown')
-        moveDown()
-
-      elif key == '6':
-        print('key 6 pressed - Auto-Landing') 
-        move2Aruco()
-
-      elif key == '\x03':
-          print('Quit work')
-          break
-
-      else:
-        print('Wrong key!')
-=======
       elif key == '3': # condition created in order to pressed key 3 and move camera to land in bebop2
         print('key 3 pressed - MoveCamera')
         moveCamera()
@@ -413,7 +308,6 @@ if __name__ == '__main__':
         print('Wrong key!')
 
       landing = True
->>>>>>> drone-real
       
   except rospy.ROSInterruptException:
     print('Erro')
