@@ -145,20 +145,20 @@ def move2Aruco():
   global msg_aruco
 
   # z data orientation
-  k=0.005
-  ki=0.005
+  k=0.008
+  ki=0.004
   eyawp = 0
 
   # x data translation
 
-  k_x = 0.001
-  k_i_x = 0.0003
+  k_x = 0.0009
+  k_i_x = 0.0001
   exp = 0
 
   # y data translation
 
-  k_y = 0.001
-  k_i_y = 0.0003
+  k_y = 0.0009
+  k_i_y = 0.0001
   eyp = 0
 
   goal_aruco = Twist()
@@ -228,21 +228,22 @@ def move2Aruco():
       pose_pub.publish(goal_aruco)
 
       if abs(linearz) <= 180 and abs(lineary) <= 8 and abs(linearx) <= 10 and abs(angularz) <= 2:
-        goal_aruco.linear.x = 1.0
+        goal_aruco.linear.x = 0.3
         pose_pub.publish(goal_aruco)
         land_pub.publish(empty_msg)
         print('Auto-Landing Performed')
+        break
 
-    # else:
-    #   print('Auto-Landing not Performed!')
-    #   goal_aruco.linear.y = 0
-    #   goal_aruco.linear.x = 0
-    #   goal_aruco.linear.z = 0
+    else:
+      print('Auto-Landing not Performed!')
+      goal_aruco.linear.y = 0
+      goal_aruco.linear.x = 0
+      goal_aruco.linear.z = 0
 
-    #   goal_aruco.angular.x = 0
-    #   goal_aruco.angular.y = 0
-    #   goal_aruco.angular.z = 0
-    #   pose_pub.publish(goal_aruco)
+      goal_aruco.angular.x = 0
+      goal_aruco.angular.y = 0
+      goal_aruco.angular.z = 0
+      pose_pub.publish(goal_aruco)
 
     rate.sleep()
 
