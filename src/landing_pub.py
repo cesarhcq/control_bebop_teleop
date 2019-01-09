@@ -177,7 +177,7 @@ def move2Aruco():
       # Condition for translation in Yaw
       if abs(angularz) > tolerance_Yaw+linearz*0.001:
         uyaw = k*angularz+(angularz+eyawp)*ki
-        eyawp = angularz
+        eyawp = angularz # incrementar
         print('correcting rotation Yaw - ', tolerance_Yaw+linearz*0.001)
 
       else:
