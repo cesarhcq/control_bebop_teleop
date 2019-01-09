@@ -4,6 +4,7 @@ from __future__ import print_function
 import roslib
 roslib.load_manifest('control_bebop_teleop')
 
+
 import sys, time, math
 import rospy
 import cv2
@@ -84,8 +85,8 @@ class aruco_data:
     #self.image_pub = rospy.Publisher("bebop2/camera_base/image_aruco",Image, queue_size=10)
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=10)
-    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=10)   
+    self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=100)
+    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=100)   
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
@@ -97,7 +98,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 17.2 #-cm
+    marker_size = 70 #-cm 17.2
 
     msg = "Trying to find"
 
@@ -152,7 +153,7 @@ class aruco_data:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 15)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 30)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
@@ -174,7 +175,7 @@ class aruco_data:
       cv2.putText(src_image, str_position, (0, 20), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
       
       #-- Print the marker's attitude respect to camera frame
-      str_attitude = "MARKER Attitude p=%4.0f  r=%4.0f  y=%4.0f"%(math.degrees(pitch_marker), math.degrees(roll_marker),
+      str_attitude = "MARKER Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_marker), math.degrees(roll_marker),
                           math.degrees(yaw_marker))
       cv2.putText(src_image, str_attitude, (0, 40), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
 
@@ -185,7 +186,7 @@ class aruco_data:
       cv2.putText(src_image, str_position, (0, 70), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
       #-- Get the attitude of the camera respect to the frame
-      str_attitude = "CAMERA Attitude p=%4.0f  r=%4.0f  y=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
+      str_attitude = "CAMERA Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
                           math.degrees(yaw_camera))
       cv2.putText(src_image, str_attitude, (0, 90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
@@ -197,7 +198,7 @@ class aruco_data:
 
       twist = Twist()
       twist.linear.x = -tvec[0]
-      twist.linear.y = tvec[1]
+      twist.linear.y = tvec[1]-10
       twist.linear.z = tvec[2]
 
       twist.angular.x = math.degrees(pitch_camera)
@@ -205,13 +206,14 @@ class aruco_data:
       twist.angular.z = math.degrees(yaw_camera)
 
       msg = "Aruco Found!"
+      print('Id detected!')
 
     else:
       print('No Id detected!')
       msg = "Aruco Not Found!"
       #-- Display the resulting frame\n",
       cv2.imshow("Image-Aruco",src_image)
-      cv2.waitKey(2)
+      cv2.waitKey(1)
 
     # try:
     #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
@@ -222,9 +224,10 @@ class aruco_data:
     try:
       self.pose_pub.publish(twist)
       self.msg_pub.publish(msg)
+      #print('Node is publishing')
     except:
       self.msg_pub.publish(msg)
-      print('Node is not publishing')
+      #print('Node is not publishing')
 
 ###############################################################################
 
@@ -244,4 +247,4 @@ def main(args):
 ###############################################################################
    
 if __name__ == '__main__':
-       main(sys.argv)
+  main(sys.argv)
