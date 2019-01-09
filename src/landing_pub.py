@@ -95,12 +95,12 @@ def moveUp():
 
   cont = 0
 
-  while cont < 1000:
+  while cont < 50:
 
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = 1 # first_position.linear.z = 1 para subir
+    first_position.linear.z = 0.5 # first_position.linear.z = 1 para subir
 
 
     first_position.angular.x = 0
@@ -122,12 +122,12 @@ def moveDown():
 
   cont = 0
 
-  while cont < 500:
+  while cont < 10:
 
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = -1
+    first_position.linear.z = -0.5
 
     first_position.angular.x = 0
     first_position.angular.y = 0
@@ -205,8 +205,8 @@ def move2Aruco():
 
 
       # Condition for translation in z
-      if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
-        u_z = -1.0
+      if abs(linearz) > 40 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
+        u_z = -0.5
         print('correcting translation Z:',linearz)
         #print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
       else:
@@ -225,8 +225,8 @@ def move2Aruco():
       pose_pub.publish(goal_aruco)
 
       # Condition landing
-      if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
-        goal_aruco.linear.x = 6.0
+      if abs(linearz) <= 40 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
+        goal_aruco.linear.x = 1.0
         pose_pub.publish(goal_aruco)
         land_pub.publish(empty_msg)
         print('Auto-Landing Performed2!')
