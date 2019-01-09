@@ -144,7 +144,7 @@ def moveDown():
 def move2Aruco():
   global msg_aruco, lineary, landing
 
-  # z data orientation
+  # Yaw data orientation
   k=0.008
   ki=0.004
   eyawp = 0
@@ -184,51 +184,54 @@ def move2Aruco():
         uyaw = 0
         print('Yaw close to 0')
 
-        # Condition for translation in X
-        if abs(linearx) > (tolerance_X+linearz*0.02):
-          u_x = k_x*linearx + (linearx+exp)*k_i_x
-          exp = linearx
-          print('correcting translation X: {} - ux: {}'.format((tolerance_X+linearz*0.02),u_x))
-        else:
-          u_x = 0
-          print('X close to 0')
-        
-        # Condition for translation in y
-        if abs(lineary) > (tolerance_Y+linearz*0.02):
-          u_y = k_y*lineary + (lineary+eyp)*k_i_y
-          eyp = lineary
-          u_y = u_y
-          print('correcting translation Y: {} - uy: {}'.format((tolerance_Y+linearz*0.02),u_y))
-        else:
-          u_y = 0
-          print('Y close to 0')
+      # Condition for translation in X
+      if abs(linearx) > (tolerance_X+linearz*0.02):
+        u_x = k_x*linearx + (linearx+exp)*k_i_x
+        exp = linearx
+        print('correcting translation X: {} - ux: {}'.format((tolerance_X+linearz*0.02),u_x))
+      else:
+        u_x = 0
+        print('X close to 0')
+      
+      # Condition for translation in y
+      if abs(lineary) > (tolerance_Y+linearz*0.02):
+        u_y = k_y*lineary + (lineary+eyp)*k_i_y
+        eyp = lineary
+        u_y = u_y
+        print('correcting translation Y: {} - uy: {}'.format((tolerance_Y+linearz*0.02),u_y))
+      else:
+        u_y = 0
+        print('Y close to 0')
 
 
-        # Condition for translation in z
-        if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02):
-          u_z = -1.0
-          print('correcting translation Z:',linearz)
-          #print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
-        else:
-          u_z = 0
-          print('Z close to 0')
+      # Condition for translation in z
+      if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
+        u_z = -1.0
+        print('correcting translation Z:',linearz)
+        #print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
+      else:
+        u_z = 0
+        print('Z close to 0')
 
-        # Condition landing
-        if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02):
-          goal_aruco.linear.x = 0.5
-          pose_pub.publish(goal_aruco)
-          land_pub.publish(empty_msg)
-          print('Auto-Landing Performed2!')
-          landing = False
-          break
+      # Command of actuation
+      goal_aruco.linear.y = u_x
+      goal_aruco.linear.x = -u_y
+      goal_aruco.linear.z = u_z
 
-        goal_aruco.linear.y = u_x
-        goal_aruco.linear.x = -u_y
-        goal_aruco.linear.z = u_z
-        pose_pub.publish(goal_aruco)
-
+      goal_aruco.angular.x = 0
+      goal_aruco.angular.y = 0
       goal_aruco.angular.z = uyaw
+
       pose_pub.publish(goal_aruco)
+
+      # Condition landing
+      if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
+        goal_aruco.linear.x = 6.0
+        pose_pub.publish(goal_aruco)
+        land_pub.publish(empty_msg)
+        print('Auto-Landing Performed2!')
+        landing = False
+        break
 
     else:
       print('Auto-Landing not Performed!')
