@@ -321,6 +321,4 @@ In another terminal, execute:
 $ rosrun control_bebop landing_pub.py
 ```
 
-> sphinx /home/victor/bebop_ws/src/control_bebop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
-
 
