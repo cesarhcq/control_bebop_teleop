@@ -56,33 +56,13 @@ def rotationMatrixToEulerAngles(R):
         z = 0
 
     return np.array([x, y, z])
-
-###############################################################################
-
-#-- Update fps
-def update_fps_read():
-    global t_read, fps_read
-    t           = time.time()
-    fps_read    = 1.0/(t - t_read)
-    t_read      = t
-    
-def update_fps_detect():
-    global t_detect, fps_detect
-    t           = time.time()
-    fps_detect  = 1.0/(t - t_detect)
-    t_detect      = t
-    
-t_read      = time.time()
-t_detect    = t_read
-fps_read    = 0.0
-fps_detect  = 0.0
-    
+   
 ###############################################################################
  
 class aruco_data:
  
   def __init__(self):
-    self.image_pub = rospy.Publisher("bebop2/camera_base/image_aruco",Image, queue_size=100)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=100)
 
     #-- Create a publisher to topic "aruco_results"
     self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=100)
@@ -98,7 +78,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 17.2 #-cm 17.2 70
+    marker_size = 70.0 #-cm 17.2 70 (simulated)
 
     msg = "Trying to find"
 
@@ -215,10 +195,11 @@ class aruco_data:
       cv2.imshow("Image-Aruco",src_image)
       cv2.waitKey(1)
 
-    # try:
-    #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-    # except CvBridgeError as e:
-    #   print(e)
+    try:
+      self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
+
+    except CvBridgeError as e:
+      print(e)
 
     #-- Publish the pose of marker of aruco to topics
     try:
@@ -227,14 +208,14 @@ class aruco_data:
       #print('Node is publishing')
     except:
       self.msg_pub.publish(msg)
-      #print('Node is not publishing')
+      
 
 ###############################################################################
 
 def main(args):
 
   ic = aruco_data()
-  #-- Name of node
+  #-- Node name
   rospy.init_node('aruco_data', anonymous=True)
 
   try:

@@ -100,7 +100,7 @@ def moveUp():
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = 1 # first_position.linear.z = 1 para subir
+    first_position.linear.z = 0.5 # first_position.linear.z = 1 para subir
 
 
     first_position.angular.x = 0
@@ -127,7 +127,7 @@ def moveDown():
     print('init cont: ', cont)
     first_position.linear.x = 0
     first_position.linear.y = 0
-    first_position.linear.z = -1
+    first_position.linear.z = -0.5
 
     first_position.angular.x = 0
     first_position.angular.y = 0
@@ -163,7 +163,7 @@ def move2Aruco():
 
   tolerance_Yaw = 2
   tolerance_X = 5
-  tolerance_Y = 10
+  tolerance_Y = 5
 
   goal_aruco = Twist()
   empty_msg = Empty()
@@ -179,7 +179,6 @@ def move2Aruco():
         uyaw = k*angularz+(angularz+eyawp)*ki
         eyawp = angularz
         print('correcting rotation Yaw - ', tolerance_Yaw+linearz*0.001)
-
       else:
         uyaw = 0
         print('Yaw close to 0')
@@ -197,26 +196,23 @@ def move2Aruco():
       if abs(lineary) > (tolerance_Y+linearz*0.02):
         u_y = k_y*lineary + (lineary+eyp)*k_i_y
         eyp = lineary
-        u_y = u_y
         print('correcting translation Y: {} - uy: {}'.format((tolerance_Y+linearz*0.02),u_y))
       else:
         u_y = 0
         print('Y close to 0')
 
-
       # Condition for translation in z
       if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
         u_z = -1.0
         print('correcting translation Z:',linearz)
-        #print('RegularX: {} - RegularY: {} - RegularYaw: {}'.format(u_x, u_y, uyaw))
       else:
         u_z = 0
         print('Z close to 0')
 
       # Command of actuation
-      goal_aruco.linear.y = u_x
+      goal_aruco.linear.y =  u_x
       goal_aruco.linear.x = -u_y
-      goal_aruco.linear.z = u_z
+      goal_aruco.linear.z =  u_z
 
       goal_aruco.angular.x = 0
       goal_aruco.angular.y = 0
@@ -229,7 +225,7 @@ def move2Aruco():
         goal_aruco.linear.x = 6.0
         pose_pub.publish(goal_aruco)
         land_pub.publish(empty_msg)
-        print('Auto-Landing Performed2!')
+        print('Auto-Landing Performed!')
         landing = False
         break
 
