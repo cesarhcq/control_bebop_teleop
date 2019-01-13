@@ -4,7 +4,6 @@ from __future__ import print_function
 import roslib
 roslib.load_manifest('control_bebop_teleop')
 
-
 import sys, time, math
 import rospy
 import cv2
@@ -35,7 +34,6 @@ def isRotationMatrix(R):
 
   return n < 1e-6
 
-
 # Calculates rotation matrix to euler angles
 # The result is the same as MATLAB except the order
 # of the euler angles ( x and z are swapped ).
@@ -56,7 +54,7 @@ def rotationMatrixToEulerAngles(R):
         z = 0
 
     return np.array([x, y, z])
-   
+    
 ###############################################################################
  
 class aruco_data:
@@ -78,9 +76,7 @@ class aruco_data:
 
     #-- Define Tag\n",
     id_to_find = 1
-    marker_size = 70.0 #-cm 17.2 70 (simulated)
-
-    msg = "Trying to find"
+    marker_size = 0.7 # 0.7 #-m -  0.172 m 
 
     #-- Define the Aruco dictionary\n",
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -133,7 +129,7 @@ class aruco_data:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 30)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
@@ -148,45 +144,45 @@ class aruco_data:
 
       #-- Print 'X' in the center of the camera
       cv2.putText(src_image, "X", (cols/2, rows/2), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
-      ###############################################################################
-
-      #-- Print the tag position in camera frame
-      str_position = "MARKER Position x=%4.0f  y=%4.0f  z=%4.0f "%(tvec[0], tvec[1], tvec[2])
-      cv2.putText(src_image, str_position, (0, 20), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
-      
-      #-- Print the marker's attitude respect to camera frame
-      str_attitude = "MARKER Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_marker), math.degrees(roll_marker),
-                          math.degrees(yaw_marker))
-      cv2.putText(src_image, str_attitude, (0, 40), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
 
       ###############################################################################
 
       #-- Print the tag position in camera frame
       str_position = "CAMERA Position x=%4.0f  y=%4.0f  z=%4.0f"%(-tvec[0], tvec[1], tvec[2])
-      cv2.putText(src_image, str_position, (0, 70), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+      cv2.putText(src_image, str_position, (0, 30), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
 
       #-- Get the attitude of the camera respect to the frame
       str_attitude = "CAMERA Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
                           math.degrees(yaw_camera))
-      cv2.putText(src_image, str_attitude, (0, 90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+      cv2.putText(src_image, str_attitude, (0, 50), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
 
       ###############################################################################
       
+      print("CAMERA Position: x = {} m - y = {} m - z = {} m".format(round(-tvec[0],3), round(tvec[1],3), round(tvec[2],3)) )
+
+      print("CAMERA Attitude: pitch = {} deg roll = {} deg yaw = {} deg".format(round(math.degrees(pitch_camera),3), 
+                                                                      round(math.degrees(roll_camera) ,3), 
+                                                                      round(math.degrees(yaw_camera)  ,3)))
+
+      print("----------------------------------------------------------------------------------")
+
+      ###############################################################################
+
       cv2.imshow("Image-Aruco", src_image)
       #cv2.imshow("Image-Gray", gray)
-      cv2.waitKey(2)
+      cv2.waitKey(1)
 
       twist = Twist()
       twist.linear.x = -tvec[0]
-      twist.linear.y = tvec[1]
-      twist.linear.z = tvec[2]
+      twist.linear.y =  tvec[1] #-10
+      twist.linear.z =  tvec[2]
 
       twist.angular.x = math.degrees(pitch_camera)
       twist.angular.y = math.degrees(roll_camera)
       twist.angular.z = math.degrees(yaw_camera)
 
       msg = "Aruco Found!"
-      print('Id detected!')
+      #print('Id detected!')
 
     else:
       print('No Id detected!')
@@ -197,7 +193,6 @@ class aruco_data:
 
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-
     except CvBridgeError as e:
       print(e)
 
@@ -208,20 +203,20 @@ class aruco_data:
       #print('Node is publishing')
     except:
       self.msg_pub.publish(msg)
-      
+      #print('Node is not publishing')
 
 ###############################################################################
 
 def main(args):
 
   ic = aruco_data()
-  #-- Node name
-  rospy.init_node('aruco_data', anonymous=True)
+  #-- Name of node
+  rospy.init_node('aruco_data')
 
   try:
-    rospy.spin()
+      rospy.spin()
   except KeyboardInterrupt:
-    print("Shutting down")
+      print("Shutting down")
 
   cv2.destroyAllWindows()
 

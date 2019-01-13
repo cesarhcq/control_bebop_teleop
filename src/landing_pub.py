@@ -62,7 +62,7 @@ def moveCamera():
   cam_twist.angular.y = -84
   cam_twist.angular.z = 0
   cam_pub.publish(cam_twist)
-  print('angle: ',cam_twist.angular.y)
+  print('angle_camera: ',cam_twist.angular.y)
 
   return cam_twist.angular.y
 
@@ -91,26 +91,26 @@ def callback_msg(data2):
 def moveUp():
   global cont
 
-  first_position = Twist()
+  velocity = Twist()
 
   cont = 0
 
   while cont < 1000:
 
     print('init cont: ', cont)
-    first_position.linear.x = 0
-    first_position.linear.y = 0
-    first_position.linear.z = 0.5 # first_position.linear.z = 1 para subir
+    velocity.linear.x = 0
+    velocity.linear.y = 0
+    velocity.linear.z = 1 # velocity.linear.z = 1 para subir
 
 
-    first_position.angular.x = 0
-    first_position.angular.y = 0
-    first_position.angular.z = 0
-    pose_pub.publish(first_position)
+    velocity.angular.x = 0
+    velocity.angular.y = 0
+    velocity.angular.z = 0
+    pose_pub.publish(velocity)
 
-    cont += 1
+    cont += 0.5
 
-    print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
+    print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
 
  ###############################################################################
@@ -118,130 +118,151 @@ def moveUp():
 def moveDown():
   global cont
   
-  first_position = Twist()
+  velocity = Twist()
 
   cont = 0
 
   while cont < 500:
 
     print('init cont: ', cont)
-    first_position.linear.x = 0
-    first_position.linear.y = 0
-    first_position.linear.z = -0.5
+    velocity.linear.x = 0
+    velocity.linear.y = 0
+    velocity.linear.z = -0.5
 
-    first_position.angular.x = 0
-    first_position.angular.y = 0
-    first_position.angular.z = 0
-    pose_pub.publish(first_position)
+    velocity.angular.x = 0
+    velocity.angular.y = 0
+    velocity.angular.z = 0
+    pose_pub.publish(velocity)
 
     cont += 1
 
-    print('X: {} - Y: {} - Z: {}'.format(first_position.linear.x, first_position.linear.y, first_position.linear.z))
+    print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
 
   ###############################################################################
 
 def move2Aruco():
-  global msg_aruco, lineary, landing
+  global msg_aruco, landing
 
-  # Yaw data orientation
-  k=0.008
-  ki=0.004
+  # z data orientation -- 20m
+  k = 2e-3
+  ki = 8e-4
   eyawp = 0
+  uyaw = 0
 
-  # x data translation
+  # x data translation -- 20m
 
-  k_x = 0.001
-  k_i_x = 0.0001
+  k_x = 2e-2
+  k_i_x = 4e-3
   exp = 0
 
-  # y data translation
+  # y data translation -- 20m
 
-  k_y = 0.001
-  k_i_y = 0.0001
+  k_y = 1e-2
+  k_i_y = 2e-3
   eyp = 0
 
   tolerance_Yaw = 2
-  tolerance_X = 5
-  tolerance_Y = 5
+  tolerance_X = 0.05
+  tolerance_Y = 0.05
 
-  goal_aruco = Twist()
+  velocity_drone = Twist()
   empty_msg = Empty()
 
   angle_camera = moveCamera()
   
-  while landing:
+  while not rospy.is_shutdown() and landing:
 
     if msg_aruco == "Aruco Found!" and angle_camera == -84:
+
+      modulo_distancia = math.sqrt(linearx*linearx + lineary*lineary)
       
       # Condition for translation in Yaw
-      if abs(angularz) > tolerance_Yaw+linearz*0.001:
-        uyaw = k*angularz+(angularz+eyawp)*ki
+      if abs(angularz) > (tolerance_Yaw+linearz*0.1) and abs(modulo_distancia) <= 2.0:
+        kp_Yaw = k*angularz
+        ki_Yaw = (angularz+eyawp)*ki
+        #ki_Yaw = 0
+        uyaw = kp_Yaw + ki_Yaw
         eyawp = angularz
-        print('correcting rotation Yaw - ', tolerance_Yaw+linearz*0.001)
+        print('correcting tolerance Yaw: {} - Uyaw: {} - kp_Yaw: {} - ki_Yaw: {}'.format((tolerance_Yaw+linearz*0.1), uyaw, kp_Yaw, ki_Yaw))
       else:
         uyaw = 0
         print('Yaw close to 0')
 
-      # Condition for translation in X
+      #Condition for translation in X
       if abs(linearx) > (tolerance_X+linearz*0.02):
-        u_x = k_x*linearx + (linearx+exp)*k_i_x
+        kp_x = k_x*linearx
+        ki_x = (linearx+exp)*k_i_x
+        #ki_x = 0
+        u_x = kp_x + ki_x
         exp = linearx
-        print('correcting translation X: {} - ux: {}'.format((tolerance_X+linearz*0.02),u_x))
+        print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.02), u_x, kp_x, ki_x))
       else:
-        u_x = 0
+        kp_x = k_x*linearx
+        ki_x = (linearx+exp)*k_i_x
+        #ki_x = 0
+        u_x = kp_x + ki_x
+        exp = linearx
         print('X close to 0')
       
       # Condition for translation in y
       if abs(lineary) > (tolerance_Y+linearz*0.02):
-        u_y = k_y*lineary + (lineary+eyp)*k_i_y
+        kp_y = k_y*lineary
+        ki_y = (lineary+eyp)*k_i_y
+        #ki_y = 0
+        u_y = kp_y + ki_y 
         eyp = lineary
-        print('correcting translation Y: {} - uy: {}'.format((tolerance_Y+linearz*0.02),u_y))
+        print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.02), u_y, kp_y, ki_y))
       else:
-        u_y = 0
+        kp_y = k_y*lineary
+        ki_y = (lineary+eyp)*k_i_y
+        #ki_y = 0
+        u_y = kp_y + ki_y 
+        eyp = lineary
         print('Y close to 0')
 
-      # Condition for translation in z
-      if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
-        u_z = -1.0
-        print('correcting translation Z:',linearz)
-      else:
-        u_z = 0
-        print('Z close to 0')
+      # # Condition for translation in z
+      # if abs(linearz) > 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= (tolerance_Yaw+linearz*0.001):
+      #   u_z = -1.0
+      #   print('correcting translation Z:',linearz)
+      # else:
+      #   u_z = 0
+      #   print('Z close to 0')
 
-      # Command of actuation
-      goal_aruco.linear.y =  u_x
-      goal_aruco.linear.x = -u_y
-      goal_aruco.linear.z =  u_z
+      # # Condition landing
+      # if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= (tolerance_Yaw+linearz*0.001):
+      #   velocity_drone.linear.y = 5.0
+      #   pose_pub.publish(velocity_drone)
+      #   land_pub.publish(empty_msg)
+      #   print('Auto-Landing Performed!')
+      #   landing = False
+      #   break
 
-      goal_aruco.angular.x = 0
-      goal_aruco.angular.y = 0
-      goal_aruco.angular.z = uyaw
+      velocity_drone.linear.y =  u_x
+      velocity_drone.linear.x = -u_y
+      # velocity_drone.linear.z =  u_z
+      
+      #print('correcting rotation Yaw - ', (tolerance_Yaw+linearz*0.1))
 
-      pose_pub.publish(goal_aruco)
-
-      # Condition landing
-      if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= tolerance_Yaw+linearz*0.001:
-        goal_aruco.linear.x = 6.0
-        pose_pub.publish(goal_aruco)
-        land_pub.publish(empty_msg)
-        print('Auto-Landing Performed!')
-        landing = False
-        break
+      velocity_drone.angular.z = 0
+      velocity_drone.angular.z = 0
+      velocity_drone.angular.z = uyaw
+      pose_pub.publish(velocity_drone)
+      print("modulo distancia: {} - uyaw: {}".format(modulo_distancia,uyaw))
 
     else:
       print('Auto-Landing not Performed!')
-      goal_aruco.linear.y = 0
-      goal_aruco.linear.x = 0
-      goal_aruco.linear.z = 0
+      velocity_drone.linear.y = 0
+      velocity_drone.linear.x = 0
+      velocity_drone.linear.z = 0
 
-      goal_aruco.angular.x = 0
-      goal_aruco.angular.y = 0
-      goal_aruco.angular.z = 0
-      pose_pub.publish(goal_aruco)
+      velocity_drone.angular.x = 0
+      velocity_drone.angular.y = 0
+      velocity_drone.angular.z = 0
+      pose_pub.publish(velocity_drone)
 
 
-    print('---------------------------------')
+    print('-----------------------------------------')
     rate.sleep()
 
 ###############################################################################
@@ -250,16 +271,18 @@ if __name__ == '__main__':
   settings = termios.tcgetattr(sys.stdin)
   rospy.init_node('landing_aruco')
 
+  # create the important subscribers
   pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
   msg_sub = rospy.Subscriber("bebop/aruco_data_received",String, callback_msg)
 
-
+  # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=100)
   pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=100)
 
-
+  # create the publishers to take off and land
   takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 100) # add a publisher for each new topic
   land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 100)    # add a publisher for each new topic
+  
   empty_msg = Empty() 
 
   rate = rospy.Rate(100) #-- 100Hz
@@ -276,32 +299,38 @@ if __name__ == '__main__':
       if key == '1': # condition created in order to pressed key 1 and generates the take off of the bebop2
         print('key 1 pressed - Takeoff')
         takeoff_pub.publish(empty_msg) # action to publish it
+        print(msg)
 
       elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
         print('key 2 pressed - Landing')
         land_pub.publish(empty_msg) # action to publish it
+        print(msg)
 
-      elif key == '3': # condition created in order to pressed key 3 and move camera to land in bebop2
+      elif key == '3': # condition created in order to pressed key 3 and generates the moviment of camera
         print('key 3 pressed - MoveCamera')
         moveCamera()
+        print(msg)
 
-      elif key == '4': # condition created in order to pressed key 4 and move drone up to land in bebop2
+      elif key == '4': # condition created in order to pressed key 4 and generates upward movement of the drone
         print('key 4 pressed - MoveUp')
         moveUp()
+        print(msg)
 
-      elif key == '5': # condition created in order to pressed key 5 and move drone down to land in bebop2
+      elif key == '5': # condition created in order to pressed key 5 and generates drone descent movement
         print('key 5 pressed - MoveDown')
         moveDown()
 
-      elif key == '6': # condition created in order to pressed key 6 and auto-landing drone
+      elif key == '6': # condition created in order to pressed key 6 and generates Auto-Landing of drone
         print('key 6 pressed - Auto-Landing') 
         move2Aruco()
- 
-      elif key == '\x03': # condition created in order to pressed key Ctrl+c and quit of work 
+        print(msg)
+
+      elif key == '\x03': # condition created in order to pressed key Ctrl+c and generates output from the program
           print('Quit work')
           break
       else:
         print('Wrong key!')
+        print(msg)
 
       landing = True
       
