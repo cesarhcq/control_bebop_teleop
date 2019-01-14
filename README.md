@@ -90,7 +90,7 @@ $ catkin build
 ### Get the simulator and additional dependencies ###
 ```
 $ cd ~/bebop_ws/src
-$ git clone git@github.com:alanprodam/control_bebop.git
+$ git clone https://github.com/cesarhcq/control_bebop_teleop.git
 ```
 
 ```
@@ -102,7 +102,7 @@ $ git clone git@github.com:alanprodam/control_bebop.git
    |---> src
 	 |
          |---> bebop_autonomy
-         |---> control_bebop
+         |---> control_bebop_teleop
 ```
 
 Just follow the wiki installation for Parrot 1.0 & 2.0
@@ -284,22 +284,22 @@ $ cd ~/bebop_ws
 
 $ source devel/setup.bash
 
-$ sphinx /home/<user>/bebop_ws/src/control_bebop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 If you wanna find and change the Big_box with ArUco, if you do not have the big_box, move the file to `.gazebo/models/...`:
 
 ```
-/home/<user>/bebop_ws/src/control_bebop/world/big_box
+/home/<user>/bebop_ws/src/control_bebop_teleop/world/big_box
 
 /home/<user>/.gazebo/models/big_box
 ```
 
 In case of low GPU, you should put this command
 ```
-$ sphinx /home/<user>/bebop_ws/src/control_bebop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
+$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
 
-$ sphinx /home/<user>/bebop_ws/src/control_bebop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
+$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
 ```
 The world will be executed.
 
@@ -312,13 +312,13 @@ $ roslaunch bebop_driver bebop_node.launch
 In another terminal, execute:
 
 ```
-$ rosrun control_bebop image_sub.py
+$ rosrun control_bebop_teleop image_sub.py
 ```
 
 In another terminal, execute:
 
 ```
-$ rosrun control_bebop landing_pub.py
+$ rosrun control_bebop_teleop landing_pub.py
 ```
 
 
