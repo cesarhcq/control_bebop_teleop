@@ -127,7 +127,7 @@ def moveDown():
     print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = -0.5
+    velocity.linear.z = -1.0
 
     velocity.angular.x = 0
     velocity.angular.y = 0
