@@ -13,7 +13,7 @@ ROS version: Kinetic
 ### Get the simulator and additional dependencies ###
 
 ```
-$ sudo apt-get install ros-kinetic-cmake-modules
+$ sudo apt-get install ros-kinetic-cmake-modules libboost-all-dev 
 
 $ cd ~/bebop_ws/src
 
@@ -56,7 +56,7 @@ Obtaining Best Performance - [Best Performance SVO](https://github.com/uzh-rpg/r
    |---> devel
    |---> logs
    |---> src
-	 |
+   |
          |---> bebop_autonomy
          |---> control_bebop_teleop
          **New Packages**
