@@ -222,14 +222,14 @@ def move2Aruco():
         #print('Y close to 0')
 
       # # Condition for translation in z
-      if abs(linearz) > 0.125 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        u_z = -1.0
-        #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
-        #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
-        print('Drone Landing!')
-      else:
-        u_z = 0
-        print('Drone is not Landing!')
+      # if abs(linearz) > 0.125 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+      #   u_z = -1.0
+      #   #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
+      #   #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
+      #   print('Drone Landing!')
+      # else:
+      #   u_z = 0
+      #   print('Drone is not Landing!')
 
       # # Condition landing
       # if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= (tolerance_Yaw+linearz*0.001):
