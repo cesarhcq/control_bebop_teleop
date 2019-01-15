@@ -141,7 +141,7 @@ def moveDown():
 
   ###############################################################################
 
-def move2Aruco():
+def autoLanding():
   global msg_aruco, landing
 
   # z data orientation -- 20m
@@ -242,7 +242,7 @@ def move2Aruco():
 
       velocity_drone.linear.y =  u_x
       velocity_drone.linear.x = -u_y
-      velocity_drone.linear.z =  u_z
+      velocity_drone.linear.z =  0
       
       #print('correcting rotation Yaw - ', (tolerance_Yaw+linearz*0.1))
 
@@ -324,7 +324,7 @@ if __name__ == '__main__':
 
       elif key == '6': # condition created in order to pressed key 6 and generates Auto-Landing of drone
         print('key 6 pressed - Auto-Landing') 
-        move2Aruco()
+        autoLanding()
         print(msg)
 
       elif key == '\x03': # condition created in order to pressed key Ctrl+c and generates output from the program

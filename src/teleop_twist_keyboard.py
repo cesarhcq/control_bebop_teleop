@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('teleop_twist_keyboard')
+import roslib; roslib.load_manifest('control_bebop_teleop')
 import rospy
 
 from geometry_msgs.msg import Twist # Geometry msg is informed by autonomy ROS package (Twitst - Keyboard)

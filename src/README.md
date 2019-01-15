@@ -118,6 +118,11 @@ You can choose between `camera_pinhole.yaml` or `camera_atan.yaml` and `vo_fast.
         <!-- Default parameter settings: choose between vo_fast and vo_accurate -->
         <rosparam file="$(find svo_ros)/param/vo_fast.yaml" />
 
+        <!-- Initial camera orientation, make it point downwards -->
+        <param name="init_rx" value="3.05" />
+        <param name="init_ry" value="0.00" />
+        <param name="init_rz" value="0.00" />
+
     </node>
         
 </launch>
