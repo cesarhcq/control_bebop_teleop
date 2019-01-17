@@ -44,7 +44,7 @@ while not rospy.is_shutdown():
     # first, we'll publish the transform over tf
     odom2_broadcaster.sendTransform(
         (x, y, 0.),
-        odom2_quat,
+        (0,0,0,1),
         current_time,
         "base_link",
         "odom"

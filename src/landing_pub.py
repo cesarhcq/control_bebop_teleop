@@ -27,7 +27,6 @@ angularz = 0
 msg_aruco = "Empty"
 
 landing = True
-cont = 0
 
 msg = """
 Keyboard commands for Autonomous Landing of the Quadcopter
@@ -53,6 +52,19 @@ def getKey():
 
 ###############################################################################
 
+def callback(data):
+  global linearx, lineary, linearz, angularx, angulary, angularz
+
+  linearx = data.linear.x
+  lineary = data.linear.y
+  linearz = data.linear.z
+
+  angularx = data.angular.x
+  angulary = data.angular.y
+  angularz = data.angular.z
+
+###############################################################################
+
 def moveCamera():
 
   cam_twist = Twist()
@@ -68,28 +80,7 @@ def moveCamera():
 
 ###############################################################################
 
-def callback(data):
-  global linearx, lineary, linearz, angularx, angulary, angularz
-
-  linearx = data.linear.x
-  lineary = data.linear.y
-  linearz = data.linear.z
-
-  angularx = data.angular.x
-  angulary = data.angular.y
-  angularz = data.angular.z
-
-###############################################################################
-
-def callback_msg(data2):
-  global msg_aruco
-
-  msg_aruco = data2.data
-
-###############################################################################
-
 def moveUp():
-  global cont
 
   velocity = Twist()
 
@@ -106,7 +97,7 @@ def moveUp():
     velocity.angular.x = 0
     velocity.angular.y = 0
     velocity.angular.z = 0
-    pose_pub.publish(velocity)
+    vel_drone_pub.publish(velocity)
 
     cont += 0.5
 
@@ -116,7 +107,6 @@ def moveUp():
  ###############################################################################
 
 def moveDown():
-  global cont
   
   velocity = Twist()
 
@@ -132,7 +122,7 @@ def moveDown():
     velocity.angular.x = 0
     velocity.angular.y = 0
     velocity.angular.z = 0
-    pose_pub.publish(velocity)
+    vel_drone_pub.publish(velocity)
 
     cont += 1
 
@@ -169,7 +159,6 @@ def autoLanding():
   velocity_drone = Twist()
   empty_msg = Empty()
 
-  angle_camera = moveCamera()
   
   while not rospy.is_shutdown() and landing:
 
@@ -194,14 +183,14 @@ def autoLanding():
         kp_x = k_x*linearx
         ki_x = (linearx+exp)*k_i_x
         #ki_x = 0
-        u_x = (kp_x + ki_x)*linearz*0.2
+        u_x = (kp_x + ki_x)
         exp = linearx
         print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
       else:
         kp_x = k_x*linearx
         ki_x = (linearx+exp)*k_i_x
         #ki_x = 0
-        u_x = (kp_x + ki_x)*linearz*0.2
+        u_x = (kp_x + ki_x)
         exp = linearx
         #print('X close to 0')
       
@@ -210,14 +199,14 @@ def autoLanding():
         kp_y = k_y*lineary
         ki_y = (lineary+eyp)*k_i_y
         #ki_y = 0
-        u_y = (kp_y + ki_y)*linearz*0.2
+        u_y = (kp_y + ki_y)
         eyp = lineary
         print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
       else:
         kp_y = k_y*lineary
         ki_y = (lineary+eyp)*k_i_y
         #ki_y = 0
-        u_y = (kp_y + ki_y)*linearz*0.2
+        u_y = (kp_y + ki_y)
         eyp = lineary
         #print('Y close to 0')
 
@@ -234,7 +223,7 @@ def autoLanding():
       # # Condition landing
       # if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= (tolerance_Yaw+linearz*0.001):
       #   velocity_drone.linear.y = 5.0
-      #   pose_pub.publish(velocity_drone)
+      #   vel_drone_pub.publish(velocity_drone)
       #   land_pub.publish(empty_msg)
       #   print('Auto-Landing Performed!')
       #   landing = False
@@ -249,7 +238,7 @@ def autoLanding():
       velocity_drone.angular.z = 0
       velocity_drone.angular.z = 0
       velocity_drone.angular.z = uyaw
-      pose_pub.publish(velocity_drone)
+      vel_drone_pub.publish(velocity_drone)
       print("modulo distancia: {} - uyaw: {}".format(modulo_distancia,uyaw))
 
     else:
@@ -261,7 +250,7 @@ def autoLanding():
       velocity_drone.angular.x = 0
       velocity_drone.angular.y = 0
       velocity_drone.angular.z = 0
-      pose_pub.publish(velocity_drone)
+      vel_drone_pub.publish(velocity_drone)
 
 
     print('-----------------------------------------')
@@ -275,11 +264,10 @@ if __name__ == '__main__':
 
   # create the important subscribers
   pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
-  msg_sub = rospy.Subscriber("bebop/aruco_data_received",String, callback_msg)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
-  pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
+  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
 
   # create the publishers to take off and land
   takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 10) # add a publisher for each new topic

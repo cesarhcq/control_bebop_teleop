@@ -15,7 +15,7 @@ import cv2.aruco as aruco
 
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from std_msgs.msg import String
+
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
@@ -65,19 +65,18 @@ class aruco_odm:
     self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=10)
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_results",PoseWithCovarianceStamped, queue_size=10)
-
-    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=10)   
+    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_pose",PoseWithCovarianceStamped, queue_size=10)
+ 
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callback)
+    self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
 
 ###############################################################################
    
-  def callback(self,data):
+  def callbackImage(self,data):
 
-    current_time = rospy.Time.now()
+    rate = rospy.Rate(10)
 
     #-- Define Tag\n",
     id_to_find = 1
@@ -103,8 +102,10 @@ class aruco_odm:
 
     try:
       src_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+      (rows,cols,channels) = src_image.shape
     except CvBridgeError as e:
       print(e)
+
 
     #-- Convert in gray scale\n",
     gray = cv2.cvtColor(src_image, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
@@ -134,6 +135,8 @@ class aruco_odm:
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
       R_tc = R_ct.T # function transpose() with '.T'
 
+      euler = euler_from_matrix(R_ct, 'rxyz')
+
       #-- Get the attitude in terms of euler 321 (Needs to be flipped first)
       roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
 
@@ -157,11 +160,11 @@ class aruco_odm:
 
       ###############################################################################
       
-      print("CAMERA Position: x = {} m - y = {} m - z = {} m".format(round(-tvec[0],3), round(tvec[1],3), round(tvec[2],3)) )
+      # print("CAMERA Position: x = {} m - y = {} m - z = {} m".format(round(-tvec[0],3), round(tvec[1],3), round(tvec[2],3)) )
 
-      print("CAMERA Attitude: pitch = {} deg roll = {} deg yaw = {} deg".format(round(math.degrees(pitch_camera),3), 
-                                                                      round(math.degrees(roll_camera) ,3), 
-                                                                      round(math.degrees(yaw_camera)  ,3)))
+      # print("CAMERA Attitude: pitch = {} deg roll = {} deg yaw = {} deg".format(round(math.degrees(pitch_camera),3), 
+      #                                                                 round(math.degrees(roll_camera) ,3), 
+      #                                                                 round(math.degrees(yaw_camera)  ,3)))
 
       print("----------------------------------------------------------------------------------")
 
@@ -171,24 +174,36 @@ class aruco_odm:
       #cv2.imshow("Image-Gray", gray)
       cv2.waitKey(1)
 
+      tf_br = tf.TransformBroadcaster()
+
       aruco_odom = PoseWithCovarianceStamped()
-      aruco_odom.header.stamp = current_time
-      aruco_odom.header.frame_id = "aruco_odom"
-      #aruco_odom.child_frame_id = "base_link"
+      aruco_odom.header.stamp = rospy.Time.now()
+      aruco_odom.header.frame_id = "aruco_base"
+
 
       # since all odometry is 6DOF we'll need a quaternion created from yaw
-      odom_quat = tf.transformations.quaternion_from_euler(math.degrees(pitch_camera), 
-                                                            math.degrees(roll_camera), 
-                                                            math.degrees(yaw_camera))
+      odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_camera)
+
 
       # set the position
       aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
-      
-      last_time = current_time
-      rate.sleep()
 
-      msg = "Aruco Found!"
-      #print('Id detected!')
+      tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
+                          odom_quat, 
+                          aruco_odom.header.stamp, 
+                          "camera_base_link", 
+                          "aruco_base")
+
+      print(aruco_odom)
+      #print(aruco_odom.pose.pose)
+
+      try:
+        self.pose_aruco_pub.publish(aruco_odom)
+      except:
+        print('No publish!')
+
+      rate.sleep()
+      
 
     else:
       print('No Id detected!')
@@ -202,15 +217,12 @@ class aruco_odm:
     except CvBridgeError as e:
       print(e)
 
-    #-- Publish the pose of marker of aruco to topics
-    try:
-      # publish the message
-      pose_aruco_pub.publish(aruco_odom)
-      self.msg_pub.publish(msg)
-      #print('Node is publishing')
-    except:
-      self.msg_pub.publish(msg)
-      #print('Node is not publishing')
+
+
+###############################################################################
+
+  # def callbackPose(self,data):
+
 
 ###############################################################################
 
@@ -219,11 +231,6 @@ def main(args):
   ic = aruco_odm()
   #-- Name of node
   rospy.init_node('aruco_odm')
-
-  current_time = rospy.Time.now()
-  last_time = rospy.Time.now()
-
-  rate = rospy.Rate(10) #-- 10Hz
 
   try:
       rospy.spin()
