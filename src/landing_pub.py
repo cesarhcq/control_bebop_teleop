@@ -95,7 +95,7 @@ def moveUp():
 
   cont = 0
 
-  while cont < 1000:
+  while cont < 300:
 
     print('init cont: ', cont)
     velocity.linear.x = 0
@@ -122,12 +122,12 @@ def moveDown():
 
   cont = 0
 
-  while cont < 500:
+  while cont < 300:
 
     print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = -0.5
+    velocity.linear.z = -1.0
 
     velocity.angular.x = 0
     velocity.angular.y = 0
@@ -278,16 +278,16 @@ if __name__ == '__main__':
   msg_sub = rospy.Subscriber("bebop/aruco_data_received",String, callback_msg)
 
   # create the important publishers
-  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=100)
-  pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=100)
+  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
+  pose_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
 
   # create the publishers to take off and land
-  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 100) # add a publisher for each new topic
-  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 100)    # add a publisher for each new topic
+  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 10) # add a publisher for each new topic
+  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 10)    # add a publisher for each new topic
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(100) #-- 100Hz
+  rate = rospy.Rate(10) #-- 10Hz
 
   print('Program Started')
   print(msg)

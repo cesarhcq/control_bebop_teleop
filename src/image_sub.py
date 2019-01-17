@@ -5,8 +5,9 @@ import roslib
 roslib.load_manifest('control_bebop_teleop')
 
 import sys, time, math
+from math import sin, cos, pi
 import rospy
-import cv2
+import cv2, tf
 
 # numpy and scipy
 import numpy as np
@@ -14,8 +15,9 @@ import cv2.aruco as aruco
 
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 ###############################################################################
 #------- ROTATIONS https://www.learnopencv.com/rotation-matrix-to-euler-angles/
@@ -57,14 +59,15 @@ def rotationMatrixToEulerAngles(R):
     
 ###############################################################################
  
-class aruco_data:
+class aruco_odm:
  
   def __init__(self):
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=100)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=10)
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_pub = rospy.Publisher("bebop/aruco_results",Twist, queue_size=100)
-    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=100)   
+    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_results",PoseWithCovarianceStamped, queue_size=10)
+
+    self.msg_pub = rospy.Publisher("bebop/aruco_data_received", String, queue_size=10)   
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
@@ -73,6 +76,8 @@ class aruco_data:
 ###############################################################################
    
   def callback(self,data):
+
+    current_time = rospy.Time.now()
 
     #-- Define Tag\n",
     id_to_find = 1
@@ -103,12 +108,6 @@ class aruco_data:
 
     #-- Convert in gray scale\n",
     gray = cv2.cvtColor(src_image, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
-
-    (rows,cols,channels) = src_image.shape
-    #if cols > 60 and rows > 60 :
-      #cv2.circle(src_image, (50,50), 10, 255)
-  
-    #print('cols = {} rows = {}'.format(cols,rows))
 
     #-- Find all the aruco markers in the image\n",
     corners, ids, rejected = aruco.detectMarkers(image=gray,
@@ -172,14 +171,21 @@ class aruco_data:
       #cv2.imshow("Image-Gray", gray)
       cv2.waitKey(1)
 
-      twist = Twist()
-      twist.linear.x = -tvec[0]
-      twist.linear.y =  tvec[1] #-10
-      twist.linear.z =  tvec[2]
+      aruco_odom = PoseWithCovarianceStamped()
+      aruco_odom.header.stamp = current_time
+      aruco_odom.header.frame_id = "aruco_odom"
+      #aruco_odom.child_frame_id = "base_link"
 
-      twist.angular.x = math.degrees(pitch_camera)
-      twist.angular.y = math.degrees(roll_camera)
-      twist.angular.z = math.degrees(yaw_camera)
+      # since all odometry is 6DOF we'll need a quaternion created from yaw
+      odom_quat = tf.transformations.quaternion_from_euler(math.degrees(pitch_camera), 
+                                                            math.degrees(roll_camera), 
+                                                            math.degrees(yaw_camera))
+
+      # set the position
+      aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
+      
+      last_time = current_time
+      rate.sleep()
 
       msg = "Aruco Found!"
       #print('Id detected!')
@@ -198,7 +204,8 @@ class aruco_data:
 
     #-- Publish the pose of marker of aruco to topics
     try:
-      self.pose_pub.publish(twist)
+      # publish the message
+      pose_aruco_pub.publish(aruco_odom)
       self.msg_pub.publish(msg)
       #print('Node is publishing')
     except:
@@ -209,9 +216,14 @@ class aruco_data:
 
 def main(args):
 
-  ic = aruco_data()
+  ic = aruco_odm()
   #-- Name of node
-  rospy.init_node('aruco_data')
+  rospy.init_node('aruco_odm')
+
+  current_time = rospy.Time.now()
+  last_time = rospy.Time.now()
+
+  rate = rospy.Rate(10) #-- 10Hz
 
   try:
       rospy.spin()
