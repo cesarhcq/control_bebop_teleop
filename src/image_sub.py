@@ -13,11 +13,29 @@ import cv2, tf
 import numpy as np
 import cv2.aruco as aruco
 
+# library to get image
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+# library use pose mensages
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
+
+#-- Define Tag\n",
+id_to_find = 1
+marker_size = 0.7 # 0.7 #-m -  0.172 m 
+
+#-- Define the Aruco dictionary\n",
+aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+parameters =  aruco.DetectorParameters_create()
+
+#-- Get the camera calibration\n",
+calib_path = '/home/victor/bebop_ws/src/control_bebop_teleop/'
+camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
+camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
+
+#-- Font for the text in the image
+font = cv2.FONT_HERSHEY_PLAIN
 
 ###############################################################################
 #------- ROTATIONS https://www.learnopencv.com/rotation-matrix-to-euler-angles/
@@ -35,6 +53,8 @@ def isRotationMatrix(R):
   n = np.linalg.norm(I - shouldBeIdentity)
 
   return n < 1e-6
+
+###############################################################################
 
 # Calculates rotation matrix to euler angles
 # The result is the same as MATLAB except the order
@@ -62,43 +82,19 @@ def rotationMatrixToEulerAngles(R):
 class aruco_odm:
  
   def __init__(self):
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=10)
 
     #-- Create a publisher to topic "aruco_results"
     self.pose_aruco_pub = rospy.Publisher("bebop/aruco_pose",PoseWithCovarianceStamped, queue_size=10)
- 
-    
-    #-- Create a supscriber from topic "image_raw"
+    #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=10)
+
+    self.Keyframe_aruco = 0
 
 ###############################################################################
    
   def callbackImage(self,data):
-
-    rate = rospy.Rate(10)
-
-    #-- Define Tag\n",
-    id_to_find = 1
-    marker_size = 0.7 # 0.7 #-m -  0.172 m 
-
-    #-- Define the Aruco dictionary\n",
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
-    parameters =  aruco.DetectorParameters_create()
-
-    #-- Get the camera calibration\n",
-    calib_path = '/home/victor/bebop_ws/src/control_bebop_teleop/'
-    camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
-    camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
-
-    #-- 180 deg rotation matrix around x axis
-    R_flip = np.zeros((3,3), dtype=np.float)
-    R_flip[0,0] = +1.0
-    R_flip[1,1] = -1.0
-    R_flip[2,2] = -1.0
-
-    #-- Font for the text in the image
-    font = cv2.FONT_HERSHEY_PLAIN
 
     try:
       src_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -106,6 +102,11 @@ class aruco_odm:
     except CvBridgeError as e:
       print(e)
 
+    #-- 180 deg rotation matrix around x axis
+    R_flip = np.zeros((3,3), dtype=np.float)
+    R_flip[0,0] = +1.0
+    R_flip[1,1] = -1.0
+    R_flip[2,2] = -1.0
 
     #-- Convert in gray scale\n",
     gray = cv2.cvtColor(src_image, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
@@ -129,13 +130,13 @@ class aruco_odm:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
+      #aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
       R_tc = R_ct.T # function transpose() with '.T'
 
-      euler = tf.euler_from_matrix(R_ct, 'rxyz')
+      #euler = tf.euler_from_matrix(R_ct, 'rxyz')
 
       #-- Get the attitude in terms of euler 321 (Needs to be flipped first)
       roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
@@ -147,38 +148,20 @@ class aruco_odm:
       #-- Print 'X' in the center of the camera
       cv2.putText(src_image, "X", (cols/2, rows/2), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-      ###############################################################################
+      cv2.imshow("Image-Aruco", src_image)
+      cv2.waitKey(1)
 
-      #-- Print the tag position in camera frame
-      str_position = "Position x=%4.0f  y=%4.0f  z=%4.0f"%(-tvec[0], tvec[1], tvec[2])
-      cv2.putText(src_image, str_position, (0, 30), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
-
-      #-- Get the attitude of the camera respect to the frame
-      str_attitude = "Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
-                          math.degrees(yaw_camera))
-      cv2.putText(src_image, str_attitude, (0, 60), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
-
-      ###############################################################################
-      
-      # print("CAMERA Position: x = {} m - y = {} m - z = {} m".format(round(-tvec[0],3), round(tvec[1],3), round(tvec[2],3)) )
-
-      # print("CAMERA Attitude: pitch = {} deg roll = {} deg yaw = {} deg".format(round(math.degrees(pitch_camera),3), 
-      #                                                                 round(math.degrees(roll_camera) ,3), 
-      #                                                                 round(math.degrees(yaw_camera)  ,3)))
-
-      print("----------------------------------------------------------------------------------")
-
-      ###############################################################################
-
-      #cv2.imshow("Image-Aruco", src_image)
-      #cv2.imshow("Image-Gray", gray)
-      #cv2.waitKey(1)
+      try:
+        self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
+      except CvBridgeError as e:
+        print(e)
 
       tf_br = tf.TransformBroadcaster()
 
       aruco_odom = PoseWithCovarianceStamped()
       aruco_odom.header.stamp = rospy.Time.now()
       aruco_odom.header.frame_id = "aruco_base"
+      aruco_odom.header.seq = self.Keyframe_aruco
 
 
       # since all odometry is 6DOF we'll need a quaternion created from yaw
@@ -194,36 +177,27 @@ class aruco_odm:
                           "camera_base_link", 
                           "aruco_base")
 
-      print(aruco_odom)
+      #print(aruco_odom)
       #print(aruco_odom.pose.pose)
+
+      self.Keyframe_aruco += 1
 
       try:
         self.pose_aruco_pub.publish(aruco_odom)
       except:
         print('No publish!')
 
-      rate.sleep()
-      
-
     else:
       print('No Id detected!')
-      msg = "Aruco Not Found!"
+
       #-- Display the resulting frame\n",
-      #cv2.imshow("Image-Aruco",src_image)
-      #cv2.waitKey(1)
-      rate.sleep()
+      cv2.imshow("Image-Aruco",src_image)
+      cv2.waitKey(1)
 
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
     except CvBridgeError as e:
       print(e)
-
-
-
-###############################################################################
-
-  # def callbackPose(self,data):
-
 
 ###############################################################################
 
@@ -234,9 +208,10 @@ def main(args):
   rospy.init_node('aruco_odm')
 
   try:
-      rospy.spin()
-  except KeyboardInterrupt:
-      print("Shutting down")
+    #getArucoPose()
+    rospy.spin()
+  except rospy.ROSInterruptException:
+    print("Shutting down")
 
   cv2.destroyAllWindows()
 

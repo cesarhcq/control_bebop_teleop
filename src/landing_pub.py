@@ -13,8 +13,9 @@ import cv2
 import numpy as np
 import cv2.aruco as aruco
 from std_msgs.msg import Empty
-from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 linearx = 0
 lineary = 0
@@ -263,7 +264,7 @@ if __name__ == '__main__':
   rospy.init_node('landing_aruco')
 
   # create the important subscribers
-  pose_sub = rospy.Subscriber("bebop/aruco_results",Twist, callback)
+  pose_sub = rospy.Subscriber("bebop/aruco_pose",PoseWithCovarianceStamped, callback)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)

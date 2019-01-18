@@ -17,9 +17,6 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 
-robot_pose = PoseWithCovarianceStamped()
-
-
 ###############################################################################
  
 class svo_data:
@@ -31,6 +28,7 @@ class svo_data:
     self.svo_image_sub = rospy.Subscriber("svo/image",Image,self.callback)
 
     self.svo_pose_sub = rospy.Subscriber("svo/pose",PoseWithCovarianceStamped,self.PoseCallback)
+    self.svo_pose_pub = rospy.Publisher("svo/pose",PoseWithCovarianceStamped,queue_size=10)
 
   ###############################################################################
    
@@ -49,22 +47,34 @@ class svo_data:
 
   def PoseCallback(self,posedata):
 
-    global robot_pose # [time, [x,y,yaw]]
+    robot_pose = PoseWithCovarianceStamped() # [time, [x,y,yaw]]
+    tf_br = tf.TransformBroadcaster()
 
     robot_pose.header = posedata.header
     robot_pose.pose = posedata.pose
 
-    if(robot_pose.header != None):
-      print('robot position update!')
-      euler = tf.transformations.euler_from_quaternion([robot_pose.pose.pose.orientation.x, 
-                                                        robot_pose.pose.pose.orientation.y, 
-                                                        robot_pose.pose.pose.orientation.z, 
-                                                        robot_pose.pose.pose.orientation.w]) #roll, pitch, yaw
+    # if(robot_pose.header != None):
+    #   print('robot position update!')
+    #   euler = tf.transformations.euler_from_quaternion([robot_pose.pose.pose.orientation.x, 
+    #                                                     robot_pose.pose.pose.orientation.y, 
+    #                                                     robot_pose.pose.pose.orientation.z, 
+    #                                                     robot_pose.pose.pose.orientation.w]) #roll, pitch, yaw
 
-      print(" x: {}\n y: {}\n Yaw: {}\n".format(robot_pose.pose.pose.position.x, robot_pose.pose.pose.position.y, euler[2])) # in radians
-      print('-------------------------------')
+    #   print(" x: {}\n y: {}\n Yaw: {}\n".format(robot_pose.pose.pose.position.x*20, robot_pose.pose.pose.position.y*20, euler[2])) # in radians
+    #   print('-------------------------------')
 
-      return robot_pose
+    tf_br.sendTransform((robot_pose.pose.pose.position.x*20, robot_pose.pose.pose.position.y*20, robot_pose.pose.pose.position.z*20), 
+                          *robot_pose.pose.pose.orientation, 
+                          robot_pose.header.stamp, 
+                          "svo_base_link", 
+                          "aruco_base")
+
+    print(robot_pose)
+
+    try:
+      self.svo_pose_pub.publish(robot_pose)
+    except:
+      print('No publish!')
 
 
 ###############################################################################
