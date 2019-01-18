@@ -135,7 +135,7 @@ class aruco_odm:
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
       R_tc = R_ct.T # function transpose() with '.T'
 
-      euler = euler_from_matrix(R_ct, 'rxyz')
+      euler = tf.euler_from_matrix(R_ct, 'rxyz')
 
       #-- Get the attitude in terms of euler 321 (Needs to be flipped first)
       roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
@@ -172,7 +172,7 @@ class aruco_odm:
 
       #cv2.imshow("Image-Aruco", src_image)
       #cv2.imshow("Image-Gray", gray)
-      cv2.waitKey(1)
+      #cv2.waitKey(1)
 
       tf_br = tf.TransformBroadcaster()
 
@@ -210,7 +210,8 @@ class aruco_odm:
       msg = "Aruco Not Found!"
       #-- Display the resulting frame\n",
       #cv2.imshow("Image-Aruco",src_image)
-      cv2.waitKey(1)
+      #cv2.waitKey(1)
+      rate.sleep()
 
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
