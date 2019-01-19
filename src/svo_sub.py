@@ -47,11 +47,12 @@ class svo_data:
 
   def PoseCallback(self,posedata):
 
-    robot_pose = PoseWithCovarianceStamped() # [time, [x,y,yaw]]
+    robot_pose = PoseWithCovarianceStamped()
     tf_br = tf.TransformBroadcaster()
 
     robot_pose.header = posedata.header
     robot_pose.pose = posedata.pose
+    robot_pose.header.frame_id = "svo_odm"
 
     # if(robot_pose.header != None):
     #   print('robot position update!')
@@ -63,9 +64,9 @@ class svo_data:
     #   print(" x: {}\n y: {}\n Yaw: {}\n".format(robot_pose.pose.pose.position.x*20, robot_pose.pose.pose.position.y*20, euler[2])) # in radians
     #   print('-------------------------------')
 
-    tf_br.sendTransform((robot_pose.pose.pose.position.x*20, robot_pose.pose.pose.position.y*20, robot_pose.pose.pose.position.z*20), 
-                          *robot_pose.pose.pose.orientation, 
-                          robot_pose.header.stamp, 
+    tf_br.sendTransform((0,0,20), 
+                          (0,0,0,0), 
+                          rospy.Time.now(), 
                           "svo_base_link", 
                           "aruco_base")
 

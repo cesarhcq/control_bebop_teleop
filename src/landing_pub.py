@@ -7,7 +7,7 @@ roslib.load_manifest('control_bebop_teleop')
 import time, math
 import sys, select, termios, tty
 import rospy
-import cv2
+import cv2, tf
 
 # numpy and scipy
 import numpy as np
@@ -17,13 +17,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
-linearx = 0
-lineary = 0
-linearz = 0
-
-angularx = 0
-angulary = 0
-angularz = 0
+drone_pose = PoseWithCovarianceStamped()
 
 msg_aruco = "Empty"
 
@@ -53,16 +47,10 @@ def getKey():
 
 ###############################################################################
 
-def callback(data):
-  global linearx, lineary, linearz, angularx, angulary, angularz
-
-  linearx = data.linear.x
-  lineary = data.linear.y
-  linearz = data.linear.z
-
-  angularx = data.angular.x
-  angulary = data.angular.y
-  angularz = data.angular.z
+def callbackPoseAruco(posedata):
+  
+  drone_pose.header = posedata.header
+  drone_pose.pose = posedata.pose
 
 ###############################################################################
 
@@ -133,7 +121,7 @@ def moveDown():
   ###############################################################################
 
 def autoLanding():
-  global msg_aruco, landing
+  global landing, drone_pose
 
   # z data orientation -- 20m
   k = 2e-3
@@ -157,59 +145,70 @@ def autoLanding():
   tolerance_X = 0.05
   tolerance_Y = 0.05
 
-  velocity_drone = Twist()
   empty_msg = Empty()
+
+  angle_camera = moveCamera()
+
+  linearx = drone_pose.pose.pose.position.x
+  lineary = drone_pose.pose.pose.position.y
+
+  euler = tf.transformations.euler_from_quaternion([drone_pose.pose.pose.orientation.x, 
+                                                  drone_pose.pose.pose.orientation.y, 
+                                                  drone_pose.pose.pose.orientation.z, 
+                                                  drone_pose.pose.pose.orientation.w]) #roll, pitch, yaw
+  #print(math.degrees(euler[2]))
+
 
   
   while not rospy.is_shutdown() and landing:
 
-    if msg_aruco == "Aruco Found!" and angle_camera == -84:
+    if angle_camera == -84:
 
       modulo_distancia = math.sqrt(linearx*linearx + lineary*lineary)
       
-      # Condition for translation in Yaw
-      if abs(angularz) > (tolerance_Yaw+linearz*0.1) and abs(modulo_distancia) <= 2.0:
-        kp_Yaw = k*angularz
-        ki_Yaw = (angularz+eyawp)*ki
-        #ki_Yaw = 0
-        uyaw = kp_Yaw + ki_Yaw
-        eyawp = angularz
-        print('correcting tolerance Yaw: {} - Uyaw: {} - kp_Yaw: {} - ki_Yaw: {}'.format((tolerance_Yaw+linearz*0.1), uyaw, kp_Yaw, ki_Yaw))
-      else:
-        uyaw = 0
-        print('Yaw close to 0')
+      # # Condition for translation in Yaw
+      # if abs(angularz) > (tolerance_Yaw+linearz*0.1) and abs(modulo_distancia) <= 2.0:
+      #   kp_Yaw = k*angularz
+      #   ki_Yaw = (angularz+eyawp)*ki
+      #   #ki_Yaw = 0
+      #   uyaw = kp_Yaw + ki_Yaw
+      #   eyawp = angularz
+      #   print('correcting tolerance Yaw: {} - Uyaw: {} - kp_Yaw: {} - ki_Yaw: {}'.format((tolerance_Yaw+linearz*0.1), uyaw, kp_Yaw, ki_Yaw))
+      # else:
+      #   uyaw = 0
+      #   print('Yaw close to 0')
 
-      #Condition for translation in X
-      if abs(linearx) > (tolerance_X+linearz*0.06):
-        kp_x = k_x*linearx
-        ki_x = (linearx+exp)*k_i_x
-        #ki_x = 0
-        u_x = (kp_x + ki_x)
-        exp = linearx
-        print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
-      else:
-        kp_x = k_x*linearx
-        ki_x = (linearx+exp)*k_i_x
-        #ki_x = 0
-        u_x = (kp_x + ki_x)
-        exp = linearx
-        #print('X close to 0')
+      # #Condition for translation in X
+      # if abs(linearx) > (tolerance_X+linearz*0.06):
+      #   kp_x = k_x*linearx
+      #   ki_x = (linearx+exp)*k_i_x
+      #   #ki_x = 0
+      #   u_x = (kp_x + ki_x)
+      #   exp = linearx
+      #   print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
+      # else:
+      #   kp_x = k_x*linearx
+      #   ki_x = (linearx+exp)*k_i_x
+      #   #ki_x = 0
+      #   u_x = (kp_x + ki_x)
+      #   exp = linearx
+      #   #print('X close to 0')
       
-      # Condition for translation in y
-      if abs(lineary) > (tolerance_Y+linearz*0.06):
-        kp_y = k_y*lineary
-        ki_y = (lineary+eyp)*k_i_y
-        #ki_y = 0
-        u_y = (kp_y + ki_y)
-        eyp = lineary
-        print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
-      else:
-        kp_y = k_y*lineary
-        ki_y = (lineary+eyp)*k_i_y
-        #ki_y = 0
-        u_y = (kp_y + ki_y)
-        eyp = lineary
-        #print('Y close to 0')
+      # # Condition for translation in y
+      # if abs(lineary) > (tolerance_Y+linearz*0.06):
+      #   kp_y = k_y*lineary
+      #   ki_y = (lineary+eyp)*k_i_y
+      #   #ki_y = 0
+      #   u_y = (kp_y + ki_y)
+      #   eyp = lineary
+      #   print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
+      # else:
+      #   kp_y = k_y*lineary
+      #   ki_y = (lineary+eyp)*k_i_y
+      #   #ki_y = 0
+      #   u_y = (kp_y + ki_y)
+      #   eyp = lineary
+      #   #print('Y close to 0')
 
       # # Condition for translation in z
       # if abs(linearz) > 0.125 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
@@ -230,28 +229,29 @@ def autoLanding():
       #   landing = False
       #   break
 
-      velocity_drone.linear.y =  u_x
-      velocity_drone.linear.x = -u_y
-      velocity_drone.linear.z =  0
+      # velocity_drone.linear.y =  u_x
+      # velocity_drone.linear.x = -u_y
+      # velocity_drone.linear.z =  0
       
       #print('correcting rotation Yaw - ', (tolerance_Yaw+linearz*0.1))
 
-      velocity_drone.angular.z = 0
-      velocity_drone.angular.z = 0
-      velocity_drone.angular.z = uyaw
-      vel_drone_pub.publish(velocity_drone)
-      print("modulo distancia: {} - uyaw: {}".format(modulo_distancia,uyaw))
+      # velocity_drone.angular.z = 0
+      # velocity_drone.angular.z = 0
+      # velocity_drone.angular.z = uyaw
+      # vel_drone_pub.publish(velocity_drone)
+      #print("modulo distancia: {} - uyaw: {}".format(modulo_distancia,uyaw))
+      print("modulo distancia: {}".format(modulo_distancia))
 
     else:
       print('Auto-Landing not Performed!')
-      velocity_drone.linear.y = 0
-      velocity_drone.linear.x = 0
-      velocity_drone.linear.z = 0
+      # velocity_drone.linear.y = 0
+      # velocity_drone.linear.x = 0
+      # velocity_drone.linear.z = 0
 
-      velocity_drone.angular.x = 0
-      velocity_drone.angular.y = 0
-      velocity_drone.angular.z = 0
-      vel_drone_pub.publish(velocity_drone)
+      # velocity_drone.angular.x = 0
+      # velocity_drone.angular.y = 0
+      # velocity_drone.angular.z = 0
+      # vel_drone_pub.publish(velocity_drone)
 
 
     print('-----------------------------------------')
@@ -264,7 +264,7 @@ if __name__ == '__main__':
   rospy.init_node('landing_aruco')
 
   # create the important subscribers
-  pose_sub = rospy.Subscriber("bebop/aruco_pose",PoseWithCovarianceStamped, callback)
+  pose_sub = rospy.Subscriber("bebop/aruco_pose",PoseWithCovarianceStamped, callbackPoseAruco)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)

@@ -177,6 +177,12 @@ class aruco_odm:
                           "camera_base_link", 
                           "aruco_base")
 
+      # tf_br2.sendTransform((0, 0, 0), 
+      #                     (0,0,0,0), 
+      #                     rospy.Time.now(), 
+      #                     "aruco_base", 
+      #                     "world")
+
       #print(aruco_odom)
       #print(aruco_odom.pose.pose)
 
