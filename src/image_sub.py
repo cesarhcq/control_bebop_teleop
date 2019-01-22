@@ -148,13 +148,13 @@ class aruco_data:
       ###############################################################################
 
       #-- Print the tag position in camera frame
-      str_position = "CAMERA Position x=%4.0f  y=%4.0f  z=%4.0f"%(-tvec[0], tvec[1], tvec[2])
-      cv2.putText(src_image, str_position, (0, 30), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
+      str_position = "Position x=%4.0f  y=%4.0f  z=%4.0f"%(-tvec[0], tvec[1], tvec[2])
+      cv2.putText(src_image, str_position, (0, 30), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
 
       #-- Get the attitude of the camera respect to the frame
-      str_attitude = "CAMERA Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
+      str_attitude = "Attitude pitch=%4.0f  roll=%4.0f  yaw=%4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
                           math.degrees(yaw_camera))
-      cv2.putText(src_image, str_attitude, (0, 50), font, 1, (255, 255, 0), 1, cv2.LINE_AA)
+      cv2.putText(src_image, str_attitude, (0, 60), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
 
       ###############################################################################
       
@@ -168,7 +168,7 @@ class aruco_data:
 
       ###############################################################################
 
-      cv2.imshow("Image-Aruco", src_image)
+      #cv2.imshow("Image-Aruco", src_image)
       #cv2.imshow("Image-Gray", gray)
       cv2.waitKey(1)
 
@@ -188,7 +188,7 @@ class aruco_data:
       print('No Id detected!')
       msg = "Aruco Not Found!"
       #-- Display the resulting frame\n",
-      cv2.imshow("Image-Aruco",src_image)
+      #cv2.imshow("Image-Aruco",src_image)
       cv2.waitKey(1)
 
     try:

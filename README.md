@@ -284,7 +284,13 @@ $ cd ~/bebop_ws
 
 $ source devel/setup.bash
 
-$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+```
+
+If you wanna use another world `svo_world.world`:
+
+```
+$ sphinx src/control_bebop_teleop/world/svo_world.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 If you wanna find and change the Big_box with ArUco, if you do not have the big_box, move the file to `.gazebo/models/...`:
@@ -297,9 +303,9 @@ If you wanna find and change the Big_box with ArUco, if you do not have the big_
 
 In case of low GPU, you should put this command
 ```
-$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
+$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
 
-$ sphinx /home/<user>/bebop_ws/src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
+$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
 ```
 The world will be executed.
 
