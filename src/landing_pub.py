@@ -269,16 +269,16 @@ if __name__ == '__main__':
   pose_sub = rospy.Subscriber("bebop/aruco_pose",PoseWithCovarianceStamped, callbackPoseAruco)
 
   # create the important publishers
-  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size=10)
-  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size=10)
+  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 50)
+  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size = 50)
 
   # create the publishers to take off and land
-  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 10) # add a publisher for each new topic
-  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 10)    # add a publisher for each new topic
+  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 50) # add a publisher for each new topic
+  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 50)    # add a publisher for each new topic
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(10) #-- 10Hz
+  rate = rospy.Rate(50) #-- 10Hz
 
   print('Program Started')
   print(msg)

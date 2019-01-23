@@ -111,6 +111,8 @@ Compiling From Source - [Installation-BebopAutonomy](https://bebop-autonomy.read
 
 Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/firststep.html)
 
+Learn About: Rotation Matrix and Euler Angles - [M3x3-RPY](https://www.learnopencv.com/rotation-matrix-to-euler-angles/)
+
 
 Start the First Simulation using Bebop 2, Gazebo and Sphinx
 ===========================================================

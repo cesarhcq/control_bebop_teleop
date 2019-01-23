@@ -22,11 +22,11 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 #-- Define Tag\n",
-id_to_find = 1
-marker_size = 0.7 # 0.7 #-m -  0.172 m 
+id_to_find = 273
+marker_size = 1.0 # 0.7 #-m -  0.172 m 
 
 #-- Define the Aruco dictionary\n",
-aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
 parameters =  aruco.DetectorParameters_create()
 
 #-- Get the camera calibration\n",
@@ -84,11 +84,11 @@ class aruco_odm:
   def __init__(self):
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_pose",PoseWithCovarianceStamped, queue_size=10)
+    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_pose",PoseWithCovarianceStamped, queue_size = 50)
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size=10)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 50)
 
     self.Keyframe_aruco = 0
 
@@ -147,6 +147,19 @@ class aruco_odm:
 
       #-- Print 'X' in the center of the camera
       cv2.putText(src_image, "X", (cols/2, rows/2), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+      ###############################################################################
+
+      # #-- Print the tag position in camera frame
+      # str_position = "Position x = %4.0f  y = %4.0f  z = %4.0f"%(-tvec[0], tvec[1], tvec[2])
+      # cv2.putText(src_image, str_position, (0, 30), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
+
+      # #-- Get the attitude of the camera respect to the frame
+      # str_attitude = "Attitude pitch = %4.0f  roll = %4.0f  yaw = %4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
+      #                     math.degrees(yaw_camera))
+      # cv2.putText(src_image, str_attitude, (0, 60), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
+
+      ###############################################################################
 
       cv2.imshow("Image-Aruco", src_image)
       cv2.waitKey(1)
