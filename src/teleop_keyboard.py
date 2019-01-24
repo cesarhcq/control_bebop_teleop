@@ -83,7 +83,7 @@ if __name__=="__main__":
 	pub2 = rospy.Publisher('bebop/takeoff', Empty, queue_size = 1) # add a publisher for each new topic
 	pub3 = rospy.Publisher('bebop/land', Empty, queue_size = 1)    # add a publisher for each new topic
 	empty_msg = Empty() 
-	rospy.init_node('teleop_twist_keyboard')
+	rospy.init_node('teleop_keyboard')
 
 	x = 0
 	y = 0

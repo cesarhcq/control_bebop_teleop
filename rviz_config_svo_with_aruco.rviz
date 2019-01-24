@@ -7,7 +7,6 @@ Panels:
         - /Global Options1
         - /Marker1/Status1
         - /TF1
-        - /TF1/Status1
       Splitter Ratio: 0.659942389
     Tree Height: 199
   - Class: rviz/Selection
@@ -28,7 +27,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image-Aruco
+    SyncSource: Image-svo
 Visualization Manager:
   Class: ""
   Displays:
@@ -55,7 +54,7 @@ Visualization Manager:
       Marker Topic: /svo/keyframes
       Name: Marker
       Namespaces:
-        {}
+        cams: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -71,14 +70,14 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        Camera_base_link:
-          Value: true
         base_link:
           Value: true
         camera_base_link:
           Value: true
         camera_optical:
           Value: false
+        camera_pan_link:
+          Value: true
         camera_tilt_link:
           Value: false
         odom:
@@ -93,10 +92,10 @@ Visualization Manager:
       Tree:
         base_link:
           camera_base_link:
-            world:
-              Camera_base_link:
-                {}
+            {}
         odom:
+          {}
+        world:
           {}
       Update Interval: 0
       Value: true
@@ -149,25 +148,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 26.771244
+      Distance: 12.2204962
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.0465256
-        Y: 6.21698904
-        Z: 3.71237254
+        X: -2.80965233
+        Y: 2.39123344
+        Z: -0.546132863
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.459797412
+      Pitch: 0.284797639
       Target Frame: cam_pos
       Value: Orbit (rviz)
-      Yaw: 5.21043587
+      Yaw: 5.66544628
     Saved: ~
 Window Geometry:
   Displays:

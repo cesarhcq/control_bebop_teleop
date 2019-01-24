@@ -22,11 +22,12 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 #-- Define Tag\n",
-id_to_find = 273
-marker_size = 1.0 # 0.7 #-m -  0.172 m 
+id_to_find = 1
+marker_size = 0.172 # 0.7 #-m -  0.172 m 
 
 #-- Define the Aruco dictionary\n",
-aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+#aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters =  aruco.DetectorParameters_create()
 
 #-- Get the camera calibration\n",
@@ -88,7 +89,7 @@ class aruco_odm:
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 50)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image)
 
     self.Keyframe_aruco = 0
 
@@ -180,24 +181,14 @@ class aruco_odm:
       # since all odometry is 6DOF we'll need a quaternion created from yaw
       odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_camera)
 
-
       # set the position
       aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
 
       tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
-                          "world",        # "aruco_base"
-                          "aruco_base")   # "drone_base"
-
-      # tf_br2.sendTransform((0, 0, 0), 
-      #                     (0,0,0,0), 
-      #                     rospy.Time.now(), 
-      #                     "aruco_base", 
-      #                     "world")
-
-      #print(aruco_odom)
-      #print(aruco_odom.pose.pose)
+                          "aruco_base",        # "aruco_base"
+                          "world")        # "drone_base"
 
       self.Keyframe_aruco += 1
 
@@ -207,11 +198,12 @@ class aruco_odm:
         print('No publish!')
 
     else:
-      print('No Id detected!')
+      rospy.loginfo('No Id detected!')
+      #print('No Id detected!')
 
       #-- Display the resulting frame\n",
       # cv2.imshow("Image-Aruco",src_image)
-      cv2.waitKey(1)
+      #cv2.waitKey(1)
 
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
@@ -225,9 +217,9 @@ def main(args):
   ic = aruco_odm()
   #-- Name of node
   rospy.init_node('aruco_odm')
+  rospy.loginfo('mensagess')
 
   try:
-    #getArucoPose()
     rospy.spin()
   except rospy.ROSInterruptException:
     print("Shutting down")

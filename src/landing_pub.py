@@ -70,12 +70,13 @@ def moveCamera():
 ###############################################################################
 
 def moveUp():
+  global drone_pose
 
   velocity = Twist()
 
   cont = 0
 
-  while cont < 300:
+  while not rospy.is_shutdown() and cont < 500:
 
     print('init cont: ', cont)
     velocity.linear.x = 0
@@ -88,9 +89,10 @@ def moveUp():
     velocity.angular.z = 0
     vel_drone_pub.publish(velocity)
 
-    cont += 0.5
+    cont += 1
+    print('Z with Aruco:',drone_pose.pose.pose.position.z)
 
-    print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
+    # print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
 
  ###############################################################################
@@ -101,7 +103,7 @@ def moveDown():
 
   cont = 0
 
-  while cont < 300:
+  while not rospy.is_shutdown() and cont < 500:
 
     print('init cont: ', cont)
     velocity.linear.x = 0
@@ -114,8 +116,9 @@ def moveDown():
     vel_drone_pub.publish(velocity)
 
     cont += 1
+    print('Z with Aruco:',drone_pose.pose.pose.position.z)
 
-    print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
+    # print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
 
   ###############################################################################
@@ -266,7 +269,7 @@ if __name__ == '__main__':
   rospy.init_node('landing_aruco')
 
   # create the important subscribers
-  pose_sub = rospy.Subscriber("bebop/aruco_pose",PoseWithCovarianceStamped, callbackPoseAruco)
+  pose_sub = rospy.Subscriber("bebop/pose_aruco",PoseWithCovarianceStamped, callbackPoseAruco)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 50)
@@ -278,7 +281,7 @@ if __name__ == '__main__':
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(50) #-- 10Hz
+  rate = rospy.Rate(50.0) #-- 50Hz
 
   print('Program Started')
   print(msg)
