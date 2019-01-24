@@ -84,7 +84,7 @@ class aruco_odm:
   def __init__(self):
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/aruco_pose",PoseWithCovarianceStamped, queue_size = 50)
+    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",PoseWithCovarianceStamped, queue_size = 50)
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
@@ -139,11 +139,11 @@ class aruco_odm:
       #euler = tf.euler_from_matrix(R_ct, 'rxyz')
 
       #-- Get the attitude in terms of euler 321 (Needs to be flipped first)
-      roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
+      pitch_marker, roll_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
 
       #-- Now get Position and attitude f the camera respect to the marker
       pos_camera = -R_tc*np.matrix(tvec).T
-      roll_camera, pitch_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip*R_tc)
+      pitch_camera, roll_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip*R_tc)
 
       #-- Print 'X' in the center of the camera
       cv2.putText(src_image, "X", (cols/2, rows/2), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
@@ -161,7 +161,7 @@ class aruco_odm:
 
       ###############################################################################
 
-      cv2.imshow("Image-Aruco", src_image)
+      # cv2.imshow("Image-Aruco", src_image)
       cv2.waitKey(1)
 
       try:
@@ -173,7 +173,7 @@ class aruco_odm:
 
       aruco_odom = PoseWithCovarianceStamped()
       aruco_odom.header.stamp = rospy.Time.now()
-      aruco_odom.header.frame_id = "aruco_base"
+      aruco_odom.header.frame_id = "aruco_base"  ## "drone_base"
       aruco_odom.header.seq = self.Keyframe_aruco
 
 
@@ -187,8 +187,8 @@ class aruco_odm:
       tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
-                          "camera_base_link", 
-                          "aruco_base")
+                          "world",        # "aruco_base"
+                          "aruco_base")   # "drone_base"
 
       # tf_br2.sendTransform((0, 0, 0), 
       #                     (0,0,0,0), 
@@ -210,7 +210,7 @@ class aruco_odm:
       print('No Id detected!')
 
       #-- Display the resulting frame\n",
-      cv2.imshow("Image-Aruco",src_image)
+      # cv2.imshow("Image-Aruco",src_image)
       cv2.waitKey(1)
 
     try:
