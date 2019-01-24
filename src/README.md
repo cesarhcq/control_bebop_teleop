@@ -23,7 +23,7 @@ $ git clone https://github.com/uzh-rpg/fast.git
 
 $ git clone https://github.com/uzh-rpg/rpg_vikit.git
 
-$ git clone https://github.com/uzh-rpg/rpg_svo.git
+$ git clone git@github.com:alanprodam/rpg_svo.git
 
 $ cd ~/bebop_ws
 
