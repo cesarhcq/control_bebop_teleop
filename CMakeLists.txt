@@ -117,7 +117,7 @@ catkin_package(
 )
 
 catkin_install_python(PROGRAMS
-   src/teleop_twist_keyboard.py src/image_sub.py
+   src/image_sub.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

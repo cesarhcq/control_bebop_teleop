@@ -170,11 +170,19 @@ class aruco_odm:
       except CvBridgeError as e:
         print(e)
 
+
+      # xaruco=tvec[0];
+      # alpha=0.8;
+
+      # xfilt= alpha*xaruco+(1-alpha)*xsvo;
+
+
+
       tf_br = tf.TransformBroadcaster()
 
       aruco_odom = PoseWithCovarianceStamped()
       aruco_odom.header.stamp = rospy.Time.now()
-      aruco_odom.header.frame_id = "aruco_base"  ## "drone_base"
+      aruco_odom.header.frame_id = "camera_base_link2"  ## "drone_base"
       aruco_odom.header.seq = self.Keyframe_aruco
 
 
@@ -184,11 +192,14 @@ class aruco_odm:
       # set the position
       aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
 
+
+
+
       tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
-                          "aruco_base",        # "aruco_base"
-                          "world")        # "drone_base"
+                          "camera_base_link2",        # "aruco_base"
+                          "odom")        # "drone_base"
 
       self.Keyframe_aruco += 1
 
