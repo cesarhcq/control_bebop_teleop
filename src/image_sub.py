@@ -18,6 +18,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 # library use pose mensages
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
@@ -180,7 +181,7 @@ class aruco_odm:
 
       tf_br = tf.TransformBroadcaster()
 
-      aruco_odom = PoseWithCovarianceStamped()
+      aruco_odom = Odometry()
       aruco_odom.header.stamp = rospy.Time.now()
       aruco_odom.header.frame_id = "odom_aruco"
       aruco_odom.header.seq = self.Keyframe_aruco
@@ -190,14 +191,16 @@ class aruco_odm:
       odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_camera)
 
       # set the position
-      aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
+      aruco_odom.pose.pose = Pose(pos_camera, Quaternion(*odom_quat))
 
 
       tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
                           "odom_aruco",
-                          "odom") 
+                          "camera_base_link2") #world
+
+      aruco_odom.child_frame_id = "camera_base_link2"
 
       self.Keyframe_aruco += 1
 

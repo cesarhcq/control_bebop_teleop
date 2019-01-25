@@ -25,7 +25,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image-Aruco
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -52,7 +52,7 @@ Visualization Manager:
       Marker Topic: /svo/keyframes
       Name: Marker
       Namespaces:
-        cams: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -96,15 +96,11 @@ Visualization Manager:
           Value: true
         camera_base_link:
           Value: true
-        camera_base_link2:
-          Value: true
         camera_optical:
           Value: true
         camera_tilt_link:
           Value: true
-        drone_svo:
-          Value: true
-        odom:
+        world:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -112,21 +108,17 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        drone_svo:
-          {}
-        odom:
+        world:
           base_link:
             camera_base_link:
               {}
-          camera_base_link2:
-            {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 50; 50; 50
     Default Light: true
-    Fixed Frame: odom
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -147,25 +139,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.96638203
+      Distance: 6.17940998
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.92797816
-        Y: 1.42807829
-        Z: -0.881705225
+        X: -1.73712742
+        Y: 1.42333782
+        Z: -1.17241621
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.474798113
+      Pitch: 0.579798043
       Target Frame: cam_pos
       Value: Orbit (rviz)
-      Yaw: 5.63043642
+      Yaw: 5.62043667
     Saved: ~
 Window Geometry:
   Displays:
