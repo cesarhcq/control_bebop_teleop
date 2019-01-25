@@ -137,14 +137,14 @@ class aruco_odm:
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
       R_tc = R_ct.T # function transpose() with '.T'
 
-      #euler = tf.euler_from_matrix(R_ct, 'rxyz')
-
       #-- Get the attitude in terms of euler 321 (Needs to be flipped first)
       pitch_marker, roll_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
 
       #-- Now get Position and attitude f the camera respect to the marker
       pos_camera = -R_tc*np.matrix(tvec).T
       pitch_camera, roll_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip*R_tc)
+
+      pos_camera = Point(-tvec[0], tvec[1], tvec[2])
 
       #-- Print 'X' in the center of the camera
       cv2.putText(src_image, "X", (cols/2, rows/2), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
@@ -182,7 +182,7 @@ class aruco_odm:
 
       aruco_odom = PoseWithCovarianceStamped()
       aruco_odom.header.stamp = rospy.Time.now()
-      aruco_odom.header.frame_id = "camera_base_link2"  ## "drone_base"
+      aruco_odom.header.frame_id = "odom_aruco"
       aruco_odom.header.seq = self.Keyframe_aruco
 
 
@@ -193,13 +193,11 @@ class aruco_odm:
       aruco_odom.pose.pose = Pose(Point(-tvec[0], tvec[1], tvec[2]), Quaternion(*odom_quat))
 
 
-
-
       tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
-                          "camera_base_link2",        # "aruco_base"
-                          "odom")        # "drone_base"
+                          "odom_aruco",
+                          "odom") 
 
       self.Keyframe_aruco += 1
 

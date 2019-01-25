@@ -30,6 +30,12 @@ q/z : increase/decrease max speeds by 10%
 w/x : increase/decrease only linear speed by 10%
 e/c : increase/decrease only angular speed by 10%
 
+----------------------------------------------------------
+TakeOff            - Press 1
+Landing            - Press 2
+MoveCameraDown     - Press 3
+MoveCameraForward  - Press 4
+----------------------------------------------------------
 CTRL-C to quit
 """
 # Bindings values using a mapping keyboard for each key used to move the quadcopter
@@ -73,15 +79,49 @@ def getKey():
 speed = .5
 turn = 1
 
+###############################################################################
+
 def vels(speed,turn):
 	return "currently:\tspeed %s\tturn %s " % (speed,turn)
 
+###############################################################################
+
+def moveCameraDown():
+
+  cam_twist = Twist()
+
+  #-- set camera, look to dwn
+  cam_twist.angular.x = 0
+  cam_twist.angular.y = -84 #-84 to 15
+  cam_twist.angular.z = 0 #-35 to 35 
+  cam_pub.publish(cam_twist)
+  print('angle_camera: ',cam_twist.angular.y)
+
+  return cam_twist.angular.y
+
+###############################################################################
+
+def moveCameraForward():
+
+  cam_twist = Twist()
+
+  #-- set camera, look to dwn
+  cam_twist.angular.x = 0
+  cam_twist.angular.y = 0 #-84 to 15
+  cam_twist.angular.z = 0 #-35 to 35 
+  cam_pub.publish(cam_twist)
+  print('angle_camera: ',cam_twist.angular.y)
+
+  return cam_twist.angular.y
+
+###############################################################################
 if __name__=="__main__":
     	settings = termios.tcgetattr(sys.stdin)
 	
 	pub = rospy.Publisher('bebop/cmd_vel', Twist, queue_size = 1)
 	pub2 = rospy.Publisher('bebop/takeoff', Empty, queue_size = 1) # add a publisher for each new topic
 	pub3 = rospy.Publisher('bebop/land', Empty, queue_size = 1)    # add a publisher for each new topic
+	cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 1)
 	empty_msg = Empty() 
 	rospy.init_node('teleop_keyboard')
 
@@ -116,9 +156,15 @@ if __name__=="__main__":
 				print 'key 1 pressionado'
 				pub2.publish(empty_msg) # action to publish it
 
-			elif key == '2': # condition created in order to pressed key 1 and generates the land of the bebop2
+			elif key == '2': # condition created in order to pressed key 2 and generates the land of the bebop2
 				print 'key 2 pressionado'
-				pub3.publish(empty_msg)	# action to publish it	
+				pub3.publish(empty_msg)	# action to publish it
+			elif key == '3': # condition created in order to pressed key 3 and generates the camera look down
+				print 'key 3 pressionado'
+				moveCameraDown()
+			elif key == '4': # condition created in order to pressed key 3 and generates the camera look forward
+				print 'key 4 pressionado'
+				moveCameraForward()
 			else:
 				x = 0
 				y = 0
