@@ -5,7 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Marker1/Status1
       Splitter Ratio: 0.659942389
     Tree Height: 199
   - Class: rviz/Selection
@@ -61,7 +60,7 @@ Visualization Manager:
       Marker Topic: /svo/points
       Name: Marker
       Namespaces:
-        trajectory: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Image
@@ -88,11 +87,46 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        base_link:
+          Value: true
+        camera_base_link:
+          Value: true
+        camera_base_link2:
+          Value: true
+        camera_optical:
+          Value: true
+        camera_tilt_link:
+          Value: true
+        drone_svo:
+          Value: true
+        odom:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        drone_svo:
+          {}
+        odom:
+          base_link:
+            camera_base_link:
+              {}
+          camera_base_link2:
+            {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 50; 50; 50
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -113,25 +147,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.30044937
+      Distance: 4.96638203
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.72607923
-        Y: 1.39477634
-        Z: -1.21200454
+        X: -1.92797816
+        Y: 1.42807829
+        Z: -0.881705225
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.504798114
+      Pitch: 0.474798113
       Target Frame: cam_pos
       Value: Orbit (rviz)
-      Yaw: 5.6504364
+      Yaw: 5.63043642
     Saved: ~
 Window Geometry:
   Displays:
