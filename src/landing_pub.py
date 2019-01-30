@@ -14,10 +14,11 @@ import numpy as np
 import cv2.aruco as aruco
 from std_msgs.msg import Empty
 from std_msgs.msg import String
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
-drone_pose = PoseWithCovarianceStamped()
+drone_pose = Odometry()
 
 msg_aruco = "Empty"
 
@@ -134,14 +135,14 @@ def autoLanding():
 
   # x data translation -- 20m
 
-  k_x = 2e-2
-  k_i_x = 4e-3
+  k_x = 4e-2
+  k_i_x = 6e-3
   exp = 0
 
   # y data translation -- 20m
 
-  k_y = 2e-2
-  k_i_y = 4e-3
+  k_y = 4e-2
+  k_i_y = 6e-3
   eyp = 0
 
   tolerance_Yaw = 2
@@ -235,7 +236,7 @@ def autoLanding():
       #   break
 
       velocity_drone.linear.y =  u_x
-      velocity_drone.linear.x = -u_y
+      velocity_drone.linear.x =  -u_y
       velocity_drone.linear.z =  0
       
       #print('correcting rotation Yaw - ', (tolerance_Yaw+linearz*0.1))
@@ -269,7 +270,7 @@ if __name__ == '__main__':
   rospy.init_node('landing_aruco')
 
   # create the important subscribers
-  pose_sub = rospy.Subscriber("bebop/pose_aruco",PoseWithCovarianceStamped, callbackPoseAruco)
+  pose_sub = rospy.Subscriber("bebop/pose_aruco",Odometry, callbackPoseAruco)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 50)

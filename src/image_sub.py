@@ -23,12 +23,12 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 #-- Define Tag\n",
-id_to_find = 1
-marker_size = 0.172 # 0.7 #-m -  0.172 m 
+id_to_find = 273 # 1
+marker_size = 1.0 # 0.7 #-m -  0.172 m 
 
 #-- Define the Aruco dictionary\n",
-#aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
-aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+#aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters =  aruco.DetectorParameters_create()
 
 #-- Get the camera calibration\n",
@@ -38,6 +38,8 @@ camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',
 
 #-- Font for the text in the image
 font = cv2.FONT_HERSHEY_PLAIN
+
+first_time = 0
 
 ###############################################################################
 #------- ROTATIONS https://www.learnopencv.com/rotation-matrix-to-euler-angles/
@@ -81,22 +83,25 @@ def rotationMatrixToEulerAngles(R):
     
 ###############################################################################
  
-class aruco_odm:
+class aruco_odom:
  
   def __init__(self):
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",PoseWithCovarianceStamped, queue_size = 50)
+    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 50)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 50)
+
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callbackImage)
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image)
 
     self.Keyframe_aruco = 0
 
 ###############################################################################
    
   def callbackImage(self,data):
+
+    global first_time
 
     try:
       src_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -132,7 +137,7 @@ class aruco_odm:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      #aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
@@ -142,7 +147,7 @@ class aruco_odm:
       pitch_marker, roll_marker, yaw_marker = rotationMatrixToEulerAngles(R_tc)
 
       #-- Now get Position and attitude f the camera respect to the marker
-      pos_camera = -R_tc*np.matrix(tvec).T
+      #pos_camera = -R_tc*np.matrix(tvec).T
       pitch_camera, roll_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip*R_tc)
 
       pos_camera = Point(-tvec[0], tvec[1], tvec[2])
@@ -152,40 +157,25 @@ class aruco_odm:
 
       ###############################################################################
 
-      # #-- Print the tag position in camera frame
-      # str_position = "Position x = %4.0f  y = %4.0f  z = %4.0f"%(-tvec[0], tvec[1], tvec[2])
-      # cv2.putText(src_image, str_position, (0, 30), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
+      #-- Print the tag position in camera frame
+      str_position = "Position x = %4.0f  y = %4.0f  z = %4.0f"%(pos_camera.x, pos_camera.y, pos_camera.z)
+      cv2.putText(src_image, str_position, (0, 30), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
 
-      # #-- Get the attitude of the camera respect to the frame
-      # str_attitude = "Attitude pitch = %4.0f  roll = %4.0f  yaw = %4.0f"%(math.degrees(pitch_camera),math.degrees(roll_camera),
-      #                     math.degrees(yaw_camera))
-      # cv2.putText(src_image, str_attitude, (0, 60), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
+      #-- Get the attitude of the camera respect to the frame
+      str_attitude = "Attitude pitch = %4.0f  roll = %4.0f  yaw = %4.0f"%(math.degrees(0),math.degrees(0),
+                          math.degrees(yaw_camera))
+      cv2.putText(src_image, str_attitude, (0, 60), font, 2, (255, 255, 0), 2, cv2.LINE_AA)
 
       ###############################################################################
 
       # cv2.imshow("Image-Aruco", src_image)
       cv2.waitKey(1)
 
-      try:
-        self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-      except CvBridgeError as e:
-        print(e)
-
-
-      # xaruco=tvec[0];
-      # alpha=0.8;
-
-      # xfilt= alpha*xaruco+(1-alpha)*xsvo;
-
-
-
-      tf_br = tf.TransformBroadcaster()
-
       aruco_odom = Odometry()
-      aruco_odom.header.stamp = rospy.Time.now()
+      aruco_odom.header.stamp = rospy.Time.now()-first_time
       aruco_odom.header.frame_id = "odom_aruco"
       aruco_odom.header.seq = self.Keyframe_aruco
-
+      aruco_odom.child_frame_id = "drone_base"
 
       # since all odometry is 6DOF we'll need a quaternion created from yaw
       odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_camera)
@@ -193,14 +183,12 @@ class aruco_odm:
       # set the position
       aruco_odom.pose.pose = Pose(pos_camera, Quaternion(*odom_quat))
 
-
-      tf_br.sendTransform((-tvec[0], tvec[1], tvec[2]), 
+      tf_br = tf.TransformBroadcaster()
+      tf_br.sendTransform((pos_camera.x, pos_camera.y, pos_camera.z), 
                           odom_quat, 
                           aruco_odom.header.stamp, 
-                          "odom_aruco",
-                          "camera_base_link2") #world
-
-      aruco_odom.child_frame_id = "camera_base_link2"
+                          "drone_base",
+                          "odom_aruco") #world
 
       self.Keyframe_aruco += 1
 
@@ -213,10 +201,6 @@ class aruco_odm:
       rospy.loginfo('No Id detected!')
       #print('No Id detected!')
 
-      #-- Display the resulting frame\n",
-      # cv2.imshow("Image-Aruco",src_image)
-      #cv2.waitKey(1)
-
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
     except CvBridgeError as e:
@@ -225,13 +209,16 @@ class aruco_odm:
 ###############################################################################
 
 def main(args):
+  global first_time
 
-  ic = aruco_odm()
+  ic = aruco_odom()
   #-- Name of node
-  rospy.init_node('aruco_odm')
-  rospy.loginfo('mensagess')
+  rospy.init_node('aruco_odom')
+  
+  rospy.loginfo('init_node')
+  first_time = rospy.Time.now()
 
-  try:
+  try: 
     rospy.spin()
   except rospy.ROSInterruptException:
     print("Shutting down")
