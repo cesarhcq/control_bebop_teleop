@@ -25,14 +25,14 @@
             <scale>0.19 0.02 0.22</scale>
           </mesh>
         </geometry>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <cast_shadows>1</cast_shadows>
-        <transparency>0</transparency>
         <material>
-          <shader type='vertex'>
+          <shader type='pixel'>
             <normal_map>__default__</normal_map>
           </shader>
         </material>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <cast_shadows>1</cast_shadows>
+        <transparency>0</transparency>
       </visual>
       <collision name='collision'>
         <laser_retro>0</laser_retro>
@@ -40,7 +40,7 @@
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <box>
-            <size>0.23 0.02 0.33</size>
+            <size>0.3 0.02 0.33</size>
           </box>
         </geometry>
         <surface>

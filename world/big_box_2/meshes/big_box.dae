@@ -461,10 +461,10 @@
 </init_from>
         </image>
         <image id="ID21">
-            <init_from>../materials/textures/aruco_172mm_id1.png</init_from> 
+            <init_from>../materials/textures/front4.png</init_from> 
         </image>
         <image id="ID34">
-            <init_from>../materials/textures/aruco_172mm_id1.png</init_from>
+            <init_from>../materials/textures/front4.png</init_from>
         </image>
         <image id="ID47">
             <init_from>../materials/textures/Kraft_Tile.jpg</init_from>
