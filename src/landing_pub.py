@@ -170,7 +170,7 @@ def autoLanding():
       angularz = math.degrees(euler[2])
       modulo_distancia = math.sqrt(linearx*linearx + lineary*lineary)
 
-      print(angularz)
+      #print(angularz)
 
       # Condition for translation in Yaw
       if abs(angularz) > (tolerance_Yaw+linearz*0.1) and abs(modulo_distancia) <= 2.0:
@@ -216,28 +216,28 @@ def autoLanding():
         eyp = lineary
         #print('Y close to 0')
 
-      # # Condition for translation in z
-      # if abs(linearz) > 0.125 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-      #   u_z = -1.0
-      #   #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
-      #   #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
-      #   print('Drone Landing!')
-      # else:
-      #   u_z = 0
-      #   print('Drone is not Landing!')
+      # Condition for translation in z
+      if abs(linearz) > 0.8 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        u_z = -1.0
+        #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
+        #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
+        print('Drone Landing!')
+      else:
+        u_z = 0
+        print('Drone is not Landing!')
 
-      # # Condition landing
-      # if abs(linearz) <= 125 and abs(linearx) <= (tolerance_X+linearz*0.02) and abs(lineary) <= (tolerance_Y+linearz*0.02) and abs(angularz) <= (tolerance_Yaw+linearz*0.001):
-      #   velocity_drone.linear.y = 5.0
-      #   vel_drone_pub.publish(velocity_drone)
-      #   land_pub.publish(empty_msg)
-      #   print('Auto-Landing Performed!')
-      #   landing = False
-      #   break
+      # Condition landing
+      if abs(linearz) <= 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        velocity_drone.linear.y = 5.0
+        vel_drone_pub.publish(velocity_drone)
+        land_pub.publish(empty_msg)
+        print('Auto-Landing Performed!')
+        landing = False
+        break
 
-      velocity_drone.linear.y =  u_x
-      velocity_drone.linear.x =  -u_y
-      velocity_drone.linear.z =  0
+      velocity_drone.linear.y = u_x
+      velocity_drone.linear.x = -u_y
+      velocity_drone.linear.z = u_z
       
       #print('correcting rotation Yaw - ', (tolerance_Yaw+linearz*0.1))
 
