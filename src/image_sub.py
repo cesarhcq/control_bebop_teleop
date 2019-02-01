@@ -172,7 +172,8 @@ class aruco_odom:
       cv2.waitKey(1)
 
       aruco_odom = Odometry()
-      aruco_odom.header.stamp = rospy.Time.now()-first_time
+      #aruco_odom.header.stamp = rospy.Time.now()-first_time
+      aruco_odom.header.stamp = rospy.Time.now()
       aruco_odom.header.frame_id = "odom_aruco"
       aruco_odom.header.seq = self.Keyframe_aruco
       aruco_odom.child_frame_id = "drone_base"
