@@ -95,7 +95,7 @@ def moveUp():
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = 1 # velocity.linear.z = 1 para subir
+    velocity.linear.z = 0.5 # velocity.linear.z = 1 para subir
 
 
     velocity.angular.x = 0
@@ -122,7 +122,7 @@ def moveDown():
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = -1.0
+    velocity.linear.z = -0.5
 
     velocity.angular.x = 0
     velocity.angular.y = 0
