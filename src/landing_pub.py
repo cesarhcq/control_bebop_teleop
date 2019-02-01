@@ -92,7 +92,7 @@ def moveUp():
 
   while not rospy.is_shutdown() and cont < 500:
 
-    print('init cont: ', cont)
+    #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
     velocity.linear.z = 1 # velocity.linear.z = 1 para subir
@@ -119,7 +119,7 @@ def moveDown():
 
   while not rospy.is_shutdown() and cont < 500:
 
-    print('init cont: ', cont)
+    #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
     velocity.linear.z = -1.0
@@ -206,10 +206,10 @@ def autoLanding():
         exp = linearx
         print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
 
-        if abs(u_x < 0.09):
+        if abs(u_x < 0.05):
           rospy.loginfo('correcting X')
           if u_x!=0:
-            u_x = (u_x/abs(u_x))*0.1
+            u_x = (u_x/abs(u_x))*0.5
             rospy.loginfo('-----------------------------------------')
       else:
         kp_x = k_x*linearx
@@ -228,10 +228,10 @@ def autoLanding():
         eyp = lineary
         print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
 
-        if abs(u_y < 0.09):
+        if abs(u_y < 0.05):
           rospy.loginfo('correcting Y')
           if u_y!=0:
-            u_y = (u_y/abs(u_y))*0.1
+            u_y = (u_y/abs(u_y))*0.5
             rospy.loginfo('-----------------------------------------')
       else:
         kp_y = k_y*lineary
@@ -243,20 +243,20 @@ def autoLanding():
 
       # Condition for translation in z
       if abs(linearz) > 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        u_z = -1.0
+        u_z = -0.5
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
-        print('Drone Landing!')
+        rospy.loginfo('Drone Landing!')
       else:
         u_z = 0
-        print('Drone is not Landing!')
+        rospy.loginfo('Drone is not Landing!')
 
       # Condition landing
-      if abs(linearz) <= 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+      if abs(linearz) <= 1.5 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         velocity_drone.linear.y = 5.0
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
-        print('Auto-Landing Performed!')
+        rospy.loginfo('Auto-Landing Performed!')
         landing = False
         break
 
