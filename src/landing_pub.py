@@ -90,7 +90,7 @@ def moveUp():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
@@ -117,7 +117,7 @@ def moveDown():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
@@ -142,7 +142,7 @@ def autoLanding():
 
   # z data orientation -- 20m
   k = 2e-3
-  ki = 8e-4
+  ki = 6e-4
   eyawp = 0
   uyaw = 0
 
@@ -204,12 +204,13 @@ def autoLanding():
         #ki_x = 0
         u_x = (kp_x + ki_x)
         exp = linearx
-        print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
+        
 
-        if abs(u_x < 0.05):
+        if abs(u_x < 0.03):
           rospy.loginfo('correcting X')
           if u_x!=0:
-            u_x = (u_x/abs(u_x))*0.5
+            u_x = (u_x/abs(u_x))*0.3
+            print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
             rospy.loginfo('-----------------------------------------')
       else:
         kp_x = k_x*linearx
@@ -226,12 +227,13 @@ def autoLanding():
         #ki_y = 0
         u_y = (kp_y + ki_y)
         eyp = lineary
-        print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
+        
 
-        if abs(u_y < 0.05):
+        if abs(u_y < 0.03):
           rospy.loginfo('correcting Y')
           if u_y!=0:
-            u_y = (u_y/abs(u_y))*0.5
+            u_y = (u_y/abs(u_y))*0.3
+            print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
             rospy.loginfo('-----------------------------------------')
       else:
         kp_y = k_y*lineary
@@ -242,8 +244,8 @@ def autoLanding():
         #print('Y close to 0')
 
       # Condition for translation in z
-      if abs(linearz) > 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        u_z = -0.5
+      if abs(linearz) > 0.8 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        u_z = -0.8
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
         rospy.loginfo('Drone Landing!')
@@ -252,7 +254,7 @@ def autoLanding():
         rospy.loginfo('Drone is not Landing!')
 
       # Condition landing
-      if abs(linearz) <= 1.5 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+      if abs(linearz) <= 1.0 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         velocity_drone.linear.y = 5.0
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
