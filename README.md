@@ -348,7 +348,5 @@ $ rosrun rviz rviz -d /src/control_bebop_teleop/rviz_config_aruco.rviz
 Open a new console and change to the directory where you have downloaded the example dataset. Then type:
 
 ```
-$ /home/<user>/bebop_ws/src/control_bebop_teleop/Dataset-Landing/
-
 $ rosbag play <name-of-dataset>.bag
 ```
