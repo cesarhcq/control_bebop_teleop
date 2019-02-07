@@ -148,17 +148,17 @@ def autoLanding():
 
   # x data translation -- 20m
 
-  k_x = 4e-2
-  k_i_x = 6e-3
+  k_x = 5e-2
+  k_i_x = 7e-3
   exp = 0
 
   # y data translation -- 20m
 
-  k_y = 4e-2
-  k_i_y = 6e-3
+  k_y = 5e-2
+  k_i_y = 7e-3
   eyp = 0
 
-  tolerance_Yaw = 2
+  tolerance_Yaw = 3
   tolerance_X = 0.05
   tolerance_Y = 0.05
 
@@ -206,11 +206,11 @@ def autoLanding():
         exp = linearx
         print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
 
-        if abs(u_x < 0.05):
-          rospy.loginfo('correcting X')
-          if u_x!=0:
-            u_x = (u_x/abs(u_x))*0.5
-            rospy.loginfo('-----------------------------------------')
+        # if abs(u_x < 0.03):
+        #   rospy.loginfo('correcting X')
+        #   if u_x!=0:
+        #     u_x = (u_x/abs(u_x))*0.3
+        #     rospy.loginfo('-----------------------------------------')
       else:
         kp_x = k_x*linearx
         ki_x = (linearx+exp)*k_i_x
@@ -228,11 +228,11 @@ def autoLanding():
         eyp = lineary
         print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
 
-        if abs(u_y < 0.05):
-          rospy.loginfo('correcting Y')
-          if u_y!=0:
-            u_y = (u_y/abs(u_y))*0.5
-            rospy.loginfo('-----------------------------------------')
+        # if abs(u_y < 0.03):
+        #   rospy.loginfo('correcting Y')
+        #   if u_y!=0:
+        #     u_y = (u_y/abs(u_y))*0.3
+        #     rospy.loginfo('-----------------------------------------')
       else:
         kp_y = k_y*lineary
         ki_y = (lineary+eyp)*k_i_y
@@ -243,7 +243,7 @@ def autoLanding():
 
       # Condition for translation in z
       if abs(linearz) > 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        u_z = -0.5
+        u_z = -1
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
         rospy.loginfo('Drone Landing!')
