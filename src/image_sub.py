@@ -88,8 +88,8 @@ class aruco_odom:
   def __init__(self):
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 50)
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 50)
+    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 100)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
@@ -137,7 +137,7 @@ class aruco_odom:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.2)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.3)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])

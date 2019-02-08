@@ -149,16 +149,24 @@ def autoLanding():
   # x data translation -- 20m
 
   k_x = 4e-2
-  k_i_x = 6e-3
+  k_i_x = 2e-2
   exp = 0
+
+  # k_x = 3e-2
+  # k_i_x = 5e-3
+  # exp = 0
 
   # y data translation -- 20m
 
   k_y = 4e-2
-  k_i_y = 6e-3
+  k_i_y = 2e-2
   eyp = 0
 
-  tolerance_Yaw = 2
+  # k_y = 3e-2
+  # k_i_y = 5e-3
+  # eyp = 0
+
+  tolerance_Yaw = 3
   tolerance_X = 0.05
   tolerance_Y = 0.05
 
@@ -204,21 +212,14 @@ def autoLanding():
         #ki_x = 0
         u_x = (kp_x + ki_x)
         exp = linearx
-        
-
-        if abs(u_x < 0.03):
-          rospy.loginfo('correcting X')
-          if u_x!=0:
-            u_x = (u_x/abs(u_x))*0.3
-            print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
-            rospy.loginfo('-----------------------------------------')
+        print('correcting tolerance X: {} *** u_x: {}'.format((tolerance_X+linearz*0.06), u_x))
       else:
         kp_x = k_x*linearx
         ki_x = (linearx+exp)*k_i_x
         #ki_x = 0
         u_x = (kp_x + ki_x)
         exp = linearx
-        #print('X close to 0')
+        print('X close to 0')
       
       # Condition for translation in y
       if abs(lineary) > (tolerance_Y+linearz*0.06):
@@ -227,24 +228,17 @@ def autoLanding():
         #ki_y = 0
         u_y = (kp_y + ki_y)
         eyp = lineary
-        
-
-        if abs(u_y < 0.03):
-          rospy.loginfo('correcting Y')
-          if u_y!=0:
-            u_y = (u_y/abs(u_y))*0.3
-            print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
-            rospy.loginfo('-----------------------------------------')
+        print('correcting tolerance Y: {} *** u_y: {}'.format((tolerance_Y+linearz*0.06), u_y))
       else:
         kp_y = k_y*lineary
         ki_y = (lineary+eyp)*k_i_y
         #ki_y = 0
         u_y = (kp_y + ki_y)
         eyp = lineary
-        #print('Y close to 0')
+        print('Y close to 0')
 
       # Condition for translation in z
-      if abs(linearz) > 0.8 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+      if abs(linearz) > 1.0 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         u_z = -0.8
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
@@ -254,8 +248,10 @@ def autoLanding():
         rospy.loginfo('Drone is not Landing!')
 
       # Condition landing
-      if abs(linearz) <= 1.0 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        velocity_drone.linear.y = 5.0
+      if abs(linearz) <= 1.2 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        velocity_drone.linear.y = 1.0
+        cv2.waitKey(500)
+        rospy.loginfo('cv2.waitKey(500)')
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
         rospy.loginfo('Auto-Landing Performed!')
@@ -300,17 +296,17 @@ if __name__ == '__main__':
   pose_sub = rospy.Subscriber("bebop/pose_aruco",Odometry, callbackPoseAruco)
 
   # create the important publishers
-  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 50)
-  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size = 50)
-  path_pub = rospy.Publisher("bebop/path_odom", Path, queue_size = 50)
+  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 100)
+  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size = 100)
+  path_pub = rospy.Publisher("bebop/path_odom", Path, queue_size = 100)
 
   # create the publishers to take off and land
-  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 50) # add a publisher for each new topic
-  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 50)    # add a publisher for each new topic
+  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 100) # add a publisher for each new topic
+  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 100)    # add a publisher for each new topic
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(50.0) #-- 50Hz
+  rate = rospy.Rate(100.0) #-- 100Hz
 
   print('Program Started')
   print(msg)
