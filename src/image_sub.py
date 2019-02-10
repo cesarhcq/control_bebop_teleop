@@ -23,12 +23,12 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 #-- Define Tag\n",
-id_to_find = 273 # 1
-marker_size = 1.0 # 0.7 #-m -  0.172 m 
+id_to_find = 273 # 1 273
+marker_size = 0.5 # 0.7 #-m -  0.172 m 
 
 #-- Define the Aruco dictionary\n",
-aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
-#aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL) #pata de urso
+#aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50) #
 parameters =  aruco.DetectorParameters_create()
 
 #-- Get the camera calibration\n",
@@ -88,8 +88,8 @@ class aruco_odom:
   def __init__(self):
 
     #-- Create a publisher to topic "aruco_results"
-    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 50)
-    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 50)
+    self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 100)
+    self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
@@ -137,7 +137,7 @@ class aruco_odom:
 
       #-- Draw the detected marker and put a reference frame over it\n",
       aruco.drawDetectedMarkers(src_image, corners)
-      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.30)
+      aruco.drawAxis(src_image, camera_matrix, camera_distortion, rvec, tvec, 0.3)
 
       #-- Obtain the rotation matrix tag->camera
       R_ct = np.matrix(cv2.Rodrigues(rvec)[0])

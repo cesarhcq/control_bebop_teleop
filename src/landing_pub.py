@@ -22,6 +22,8 @@ drone_pose = Odometry()
 
 path_drone = Path()
 
+pose = PoseStamped()
+
 msg_aruco = "Empty"
 
 landing = True
@@ -51,12 +53,11 @@ def getKey():
 ###############################################################################
 
 def callbackPoseAruco(posedata):
-  global path_drone
+  global path_drone, drone_pose
   
   drone_pose.header = posedata.header
   drone_pose.pose = posedata.pose
 
-  pose = PoseStamped()
   pose.header = posedata.header
   pose.header.stamp = rospy.Time.now()
   pose.pose = posedata.pose.pose
@@ -90,12 +91,12 @@ def moveUp():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = 1 # velocity.linear.z = 1 para subir
+    velocity.linear.z = 0.5 # velocity.linear.z = 1 para subir
 
 
     velocity.angular.x = 0
@@ -117,12 +118,12 @@ def moveDown():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = -1.0
+    velocity.linear.z = -0.5
 
     velocity.angular.x = 0
     velocity.angular.y = 0
@@ -138,26 +139,46 @@ def moveDown():
   ###############################################################################
 
 def autoLanding():
-  global landing, drone_pose
+  global landing, drone_pose, pose
 
   # z data orientation -- 20m
   k = 2e-3
-  ki = 8e-4
+  ki = 6e-4
   eyawp = 0
   uyaw = 0
 
   # x data translation -- 20m
 
+<<<<<<< HEAD
   k_x = 5e-2
   k_i_x = 7e-3
+=======
+  k_x = 6e-2
+  k_i_x = 4e-2
+>>>>>>> drone-real
   exp = 0
+
+  # k_x = 3e-2
+  # k_i_x = 5e-3
+  # exp = 0
 
   # y data translation -- 20m
 
+<<<<<<< HEAD
   k_y = 5e-2
   k_i_y = 7e-3
   eyp = 0
 
+=======
+  k_y = 6e-2
+  k_i_y = 4e-2
+  eyp = 0
+
+  # k_y = 3e-2
+  # k_i_y = 5e-3
+  # eyp = 0
+
+>>>>>>> drone-real
   tolerance_Yaw = 3
   tolerance_X = 0.05
   tolerance_Y = 0.05
@@ -170,20 +191,39 @@ def autoLanding():
 
   while not rospy.is_shutdown() and landing:
 
-    if angle_camera == -84 and drone_pose != None:
+    current_time = rospy.Time.now()
+    dt = (current_time - pose.header.stamp).to_sec()
+    # print('********tempo dt: {} current_time {} pose.header.stamp {}'.format(dt,current_time.to_sec(),pose.header.stamp.to_sec()))
 
+    if(dt > 1):
+      # rospy.loginfo('**id_aruco = False')
+      id_aruco = False
+      velocity_drone.linear.y = 0
+      velocity_drone.linear.x = 0
+      velocity_drone.linear.z = 0
+
+      velocity_drone.angular.x = 0
+      velocity_drone.angular.y = 0
+      velocity_drone.angular.z = 0
+      vel_drone_pub.publish(velocity_drone)
+    else:
+      # rospy.loginfo('**id_aruco = True')
+      id_aruco = True
+
+    if angle_camera == -84 and id_aruco == True:
+
+      # recive the position
       linearx = drone_pose.pose.pose.position.x
       lineary = drone_pose.pose.pose.position.y
       linearz = drone_pose.pose.pose.position.z
 
+      # recive the orientation
       euler = tf.transformations.euler_from_quaternion([drone_pose.pose.pose.orientation.x, 
                                                       drone_pose.pose.pose.orientation.y, 
                                                       drone_pose.pose.pose.orientation.z, 
                                                       drone_pose.pose.pose.orientation.w]) #roll, pitch, yaw
       angularz = math.degrees(euler[2])
       modulo_distancia = math.sqrt(linearx*linearx + lineary*lineary)
-
-      #print(angularz)
 
       # Condition for translation in Yaw
       if abs(angularz) > (tolerance_Yaw+linearz*0.1) and abs(modulo_distancia) <= 2.0:
@@ -199,11 +239,12 @@ def autoLanding():
 
       #Condition for translation in X
       if abs(linearx) > (tolerance_X+linearz*0.06):
-        kp_x = k_x*linearx
+        kp_x = (k_x/(linearz+1))*linearx
         ki_x = (linearx+exp)*k_i_x
         #ki_x = 0
         u_x = (kp_x + ki_x)
         exp = linearx
+<<<<<<< HEAD
         print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.06), u_x, kp_x, ki_x))
 
         # if abs(u_x < 0.03):
@@ -211,21 +252,25 @@ def autoLanding():
         #   if u_x!=0:
         #     u_x = (u_x/abs(u_x))*0.3
         #     rospy.loginfo('-----------------------------------------')
+=======
+        print('correcting tolerance X: {} *** u_x: {}'.format((tolerance_X+linearz*0.06), u_x))
+>>>>>>> drone-real
       else:
-        kp_x = k_x*linearx
+        kp_x = (k_x/(linearz+1))*linearx
         ki_x = (linearx+exp)*k_i_x
         #ki_x = 0
         u_x = (kp_x + ki_x)
         exp = linearx
-        #print('X close to 0')
+        print('X close to 0')
       
       # Condition for translation in y
       if abs(lineary) > (tolerance_Y+linearz*0.06):
-        kp_y = k_y*lineary
+        kp_y = (k_y/(linearz+1))*lineary
         ki_y = (lineary+eyp)*k_i_y
         #ki_y = 0
         u_y = (kp_y + ki_y)
         eyp = lineary
+<<<<<<< HEAD
         print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.06), u_y, kp_y, ki_y))
 
         # if abs(u_y < 0.03):
@@ -233,17 +278,25 @@ def autoLanding():
         #   if u_y!=0:
         #     u_y = (u_y/abs(u_y))*0.3
         #     rospy.loginfo('-----------------------------------------')
+=======
+        print('correcting tolerance Y: {} *** u_y: {}'.format((tolerance_Y+linearz*0.06), u_y))
+>>>>>>> drone-real
       else:
-        kp_y = k_y*lineary
+        kp_y = (k_y/(linearz+1))*lineary
         ki_y = (lineary+eyp)*k_i_y
         #ki_y = 0
         u_y = (kp_y + ki_y)
         eyp = lineary
-        #print('Y close to 0')
+        print('Y close to 0')
 
       # Condition for translation in z
+<<<<<<< HEAD
       if abs(linearz) > 1 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         u_z = -1
+=======
+      if abs(linearz) > 1.0 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        u_z = -0.8
+>>>>>>> drone-real
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
         rospy.loginfo('Drone Landing!')
@@ -252,8 +305,10 @@ def autoLanding():
         rospy.loginfo('Drone is not Landing!')
 
       # Condition landing
-      if abs(linearz) <= 1.5 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        velocity_drone.linear.y = 5.0
+      if abs(linearz) <= 1.2 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        velocity_drone.linear.y = 1.0
+        rospy.sleep(5)
+        rospy.loginfo('rospy.sleep(5)')
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
         rospy.loginfo('Auto-Landing Performed!')
@@ -274,7 +329,7 @@ def autoLanding():
 
 
     else:
-      print('Auto-Landing not Performed!')
+      rospy.loginfo('Auto-Landing not Performed!')
       velocity_drone.linear.y = 0
       velocity_drone.linear.x = 0
       velocity_drone.linear.z = 0
@@ -298,17 +353,17 @@ if __name__ == '__main__':
   pose_sub = rospy.Subscriber("bebop/pose_aruco",Odometry, callbackPoseAruco)
 
   # create the important publishers
-  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 50)
-  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size = 50)
-  path_pub = rospy.Publisher("bebop/path_odom", Path, queue_size = 50)
+  cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 100)
+  vel_drone_pub = rospy.Publisher("bebop/cmd_vel",Twist, queue_size = 100)
+  path_pub = rospy.Publisher("bebop/path_odom", Path, queue_size = 100)
 
   # create the publishers to take off and land
-  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 50) # add a publisher for each new topic
-  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 50)    # add a publisher for each new topic
+  takeoff_pub = rospy.Publisher('bebop/takeoff', Empty, queue_size = 100) # add a publisher for each new topic
+  land_pub = rospy.Publisher('bebop/land', Empty, queue_size = 100)    # add a publisher for each new topic
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(50.0) #-- 50Hz
+  rate = rospy.Rate(100.0) #-- 100Hz
 
   print('Program Started')
   print(msg)
