@@ -90,6 +90,7 @@ class aruco_odom:
     #-- Create a publisher to topic "aruco_results"
     self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 100)
     self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 100)
+    self.orientation_euler_pub = rospy.Publisher("bebop/orientation_euler",Twist, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
@@ -172,8 +173,8 @@ class aruco_odom:
       cv2.waitKey(1)
 
       aruco_odom = Odometry()
-      #aruco_odom.header.stamp = rospy.Time.now()-first_time
-      aruco_odom.header.stamp = rospy.Time.now()
+      aruco_odom.header.stamp = rospy.Time.now()-first_time
+      #aruco_odom.header.stamp = rospy.Time.now()
       aruco_odom.header.frame_id = "odom_aruco"
       aruco_odom.header.seq = self.Keyframe_aruco
       aruco_odom.child_frame_id = "drone_base"
@@ -190,6 +191,15 @@ class aruco_odom:
                           aruco_odom.header.stamp, 
                           "drone_base",
                           "odom_aruco") #world
+
+      euler_ori = Twist()
+      euler_ori.linear.x = -tvec[0]
+      euler_ori.linear.y = tvec[1]
+      euler_ori.linear.z = tvec[2]
+
+      euler_ori.angular.x = math.degrees(0)
+      euler_ori.angular.y = math.degrees(0)
+      euler_ori.angular.z = math.degrees(yaw_camera)
 
       self.Keyframe_aruco += 1
 
