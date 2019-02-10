@@ -270,8 +270,8 @@ def autoLanding():
       # Condition landing
       if abs(linearz) <= 1.2 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         velocity_drone.linear.y = 1.0
-        rospy.sleep(5)
-        rospy.loginfo('rospy.sleep(5)')
+        rospy.sleep(1)
+        rospy.loginfo('rospy.sleep(1)')
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
         rospy.loginfo('Auto-Landing Performed!')
