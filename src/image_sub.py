@@ -4,10 +4,11 @@ from __future__ import print_function
 import roslib
 roslib.load_manifest('control_bebop_teleop')
 
+import rospy
 import sys, time, math
 from math import sin, cos, pi
-import rospy
-import cv2, tf
+import cv2
+import tf
 
 # numpy and scipy
 import numpy as np
@@ -89,6 +90,7 @@ class aruco_odom:
 
     #-- Create a publisher to topic "aruco_results"
     self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 100)
+    self.orientation_euler_pub = rospy.Publisher("bebop/euler_aruco",Twist, queue_size = 100)
     self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
@@ -193,19 +195,30 @@ class aruco_odom:
 
       self.Keyframe_aruco += 1
 
+      euler_ori = Twist()
+      euler_ori.linear.x = -tvec[0]
+      euler_ori.linear.y =  tvec[1]
+      euler_ori.linear.z =  tvec[2]
+
+      euler_ori.angular.x = math.degrees(0)
+      euler_ori.angular.y = math.degrees(0)
+      euler_ori.angular.z = math.degrees(yaw_camera)
+
       try:
         self.pose_aruco_pub.publish(aruco_odom)
+        self.orientation_euler_pub.publish(euler_ori)
       except:
-        print('No publish!')
+        rospy.loginfo('No publish!')
+
+      try:
+        self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
+      except CvBridgeError as e:
+        print(e)
 
     else:
       rospy.loginfo('No Id detected!')
       #print('No Id detected!')
 
-    try:
-      self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-    except CvBridgeError as e:
-      print(e)
 
 ###############################################################################
 
