@@ -248,7 +248,7 @@
                                 <type>0</type>
                             </style>
                             <subscriber_queue_size>50</subscriber_queue_size>
-                            <title>Pitch</title>
+                            <title>quater x</title>
                         </curve_0>
                         <curve_1>
                             <axes>
@@ -299,7 +299,7 @@
                                 <type>0</type>
                             </style>
                             <subscriber_queue_size>50</subscriber_queue_size>
-                            <title>Roll</title>
+                            <title>quarter y</title>
                         </curve_1>
                         <curve_2>
                             <axes>
@@ -350,8 +350,59 @@
                                 <type>0</type>
                             </style>
                             <subscriber_queue_size>50</subscriber_queue_size>
-                            <title>Yaw</title>
+                            <title>quarter z</title>
                         </curve_2>
+                        <curve_3>
+                            <axes>
+                                <x_axis>
+                                    <field>header/stamp</field>
+                                    <field_type>0</field_type>
+                                    <scale>
+                                        <absolute_maximum>1000</absolute_maximum>
+                                        <absolute_minimum>0</absolute_minimum>
+                                        <relative_maximum>0</relative_maximum>
+                                        <relative_minimum>-100</relative_minimum>
+                                        <type>2</type>
+                                    </scale>
+                                    <topic>/bebop/pose_aruco</topic>
+                                    <type>nav_msgs/Odometry</type>
+                                </x_axis>
+                                <y_axis>
+                                    <field>pose/pose/orientation/w</field>
+                                    <field_type>0</field_type>
+                                    <scale>
+                                        <absolute_maximum>3.1400000000000001</absolute_maximum>
+                                        <absolute_minimum>-3.1400000000000001</absolute_minimum>
+                                        <relative_maximum>2</relative_maximum>
+                                        <relative_minimum>-2</relative_minimum>
+                                        <type>2</type>
+                                    </scale>
+                                    <topic>/bebop/pose_aruco</topic>
+                                    <type>nav_msgs/Odometry</type>
+                                </y_axis>
+                            </axes>
+                            <color>
+                                <custom_color>#00ddff</custom_color>
+                                <type>1</type>
+                            </color>
+                            <data>
+                                <circular_buffer_capacity>1000</circular_buffer_capacity>
+                                <time_frame_length>10</time_frame_length>
+                                <type>0</type>
+                            </data>
+                            <style>
+                                <lines_interpolate>false</lines_interpolate>
+                                <pen_style>1</pen_style>
+                                <pen_width>3</pen_width>
+                                <render_antialias>false</render_antialias>
+                                <steps_invert>false</steps_invert>
+                                <sticks_baseline>0</sticks_baseline>
+                                <sticks_orientation>2</sticks_orientation>
+                                <type>0</type>
+                            </style>
+                            <subscriber_queue_size>50</subscriber_queue_size>
+                            <title>quarter w</title>
+                        </curve_3>
                     </curves>
                     <legend>
                         <visible>true</visible>
@@ -365,404 +416,43 @@
                     <axes>
                         <axes>
                             <x_axis>
-                                <custom_title>Tempo (s)</custom_title>
-                                <title_type>1</title_type>
+                                <custom_title>Untitled Axis</custom_title>
+                                <title_type>0</title_type>
                                 <title_visible>true</title_visible>
                             </x_axis>
                             <y_axis>
-                                <custom_title>Deslocamento (m)</custom_title>
-                                <title_type>1</title_type>
+                                <custom_title>Untitled Axis</custom_title>
+                                <title_type>0</title_type>
                                 <title_visible>true</title_visible>
                             </y_axis>
                         </axes>
                     </axes>
-                    <curves>
-                        <curve_0>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>position/x</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#000000</custom_color>
-                                <type>0</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>pose x</title>
-                        </curve_0>
-                        <curve_1>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>position/y</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#00ff00</custom_color>
-                                <type>1</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>pose y</title>
-                        </curve_1>
-                        <curve_2>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>position/z</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#5500ff</custom_color>
-                                <type>1</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>pose Y</title>
-                        </curve_2>
-                    </curves>
                     <legend>
                         <visible>true</visible>
                     </legend>
                     <plot_rate>30</plot_rate>
-                    <title>Position Aruco C++</title>
+                    <title>Untitled Plot</title>
                 </column_0>
                 <column_1>
                     <axes>
                         <axes>
                             <x_axis>
-                                <custom_title>Tempo (s)</custom_title>
-                                <title_type>1</title_type>
+                                <custom_title>Untitled Axis</custom_title>
+                                <title_type>0</title_type>
                                 <title_visible>true</title_visible>
                             </x_axis>
                             <y_axis>
-                                <custom_title>Ângulo (rad)</custom_title>
-                                <title_type>1</title_type>
+                                <custom_title>Untitled Axis</custom_title>
+                                <title_type>0</title_type>
                                 <title_visible>true</title_visible>
                             </y_axis>
                         </axes>
                     </axes>
-                    <curves>
-                        <curve_0>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-100</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>orientation/x</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>2</relative_maximum>
-                                        <relative_minimum>-2</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#000000</custom_color>
-                                <type>0</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>quater x</title>
-                        </curve_0>
-                        <curve_1>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-100</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>orientation/y</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>2</relative_maximum>
-                                        <relative_minimum>-2</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#00ff00</custom_color>
-                                <type>1</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>quater y</title>
-                        </curve_1>
-                        <curve_2>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-100</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>orientation/z</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>2</relative_maximum>
-                                        <relative_minimum>-2</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#5500ff</custom_color>
-                                <type>1</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>quater z</title>
-                        </curve_2>
-                        <curve_3>
-                            <axes>
-                                <x_axis>
-                                    <field></field>
-                                    <field_type>1</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>0</relative_maximum>
-                                        <relative_minimum>-100</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </x_axis>
-                                <y_axis>
-                                    <field>orientation/w</field>
-                                    <field_type>0</field_type>
-                                    <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
-                                        <relative_maximum>2</relative_maximum>
-                                        <relative_minimum>-2</relative_minimum>
-                                        <type>2</type>
-                                    </scale>
-                                    <topic>/aruco_double_bebop/pose</topic>
-                                    <type>geometry_msgs/Pose</type>
-                                </y_axis>
-                            </axes>
-                            <color>
-                                <custom_color>#00ffff</custom_color>
-                                <type>1</type>
-                            </color>
-                            <data>
-                                <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
-                                <type>0</type>
-                            </data>
-                            <style>
-                                <lines_interpolate>false</lines_interpolate>
-                                <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
-                                <render_antialias>false</render_antialias>
-                                <steps_invert>false</steps_invert>
-                                <sticks_baseline>0</sticks_baseline>
-                                <sticks_orientation>2</sticks_orientation>
-                                <type>0</type>
-                            </style>
-                            <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>quater w</title>
-                        </curve_3>
-                    </curves>
                     <legend>
                         <visible>true</visible>
                     </legend>
                     <plot_rate>30</plot_rate>
-                    <title>Orientation Aruco C++</title>
+                    <title>Untitled Plot</title>
                 </column_1>
             </row_1>
         </plots>
