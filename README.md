@@ -113,6 +113,8 @@ Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/firststep.ht
 
 Learn About: Rotation Matrix and Euler Angles - [M3x3-RPY](https://www.learnopencv.com/rotation-matrix-to-euler-angles/)
 
+Change Python 3.6 to Pyton 2.7 - [Using Python 2.7](https://www.vivaolinux.com.br/dica/Como-alterar-a-versao-default-padrao-do-Python-no-Linux)
+
 
 Start the First Simulation using Bebop 2, Gazebo and Sphinx
 ===========================================================
