@@ -7,7 +7,8 @@ roslib.load_manifest('control_bebop_teleop')
 import time, math
 import sys, select, termios, tty
 import rospy
-import cv2, tf
+import tf
+import cv2
 
 # numpy and scipy
 import numpy as np
@@ -91,12 +92,12 @@ def moveUp():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 100:
+  while not rospy.is_shutdown() and cont < 500:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = 0.5 # velocity.linear.z = 1 para subir
+    velocity.linear.z = 1 # velocity.linear.z = 1 para subir
 
 
     velocity.angular.x = 0
@@ -118,12 +119,12 @@ def moveDown():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 100:
+  while not rospy.is_shutdown() and cont < 500:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
     velocity.linear.y = 0
-    velocity.linear.z = -0.5
+    velocity.linear.z = -1
 
     velocity.angular.x = 0
     velocity.angular.y = 0
@@ -259,7 +260,7 @@ def autoLanding():
 
       # Condition for translation in z
       if abs(linearz) > 1.0 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        u_z = -0.8
+        u_z = -1.0
         #print('correcting tolerance X: {} - Ux: {} - kp_x: {} - ki_x: {}'.format((tolerance_X+linearz*0.08), u_x, kp_x, ki_x))
         #print('correcting tolerance Y: {} - Uy: {} - kp_y: {} - ki_y: {}'.format((tolerance_Y+linearz*0.08), u_y, kp_y, ki_y))
         rospy.loginfo('Drone Landing!')
@@ -270,8 +271,8 @@ def autoLanding():
       # Condition landing
       if abs(linearz) <= 1.2 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
         velocity_drone.linear.y = 1.0
-        rospy.sleep(1)
-        rospy.loginfo('rospy.sleep(1)')
+        rospy.sleep(5)
+        rospy.loginfo('rospy.sleep(5)')
         vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
         rospy.loginfo('Auto-Landing Performed!')

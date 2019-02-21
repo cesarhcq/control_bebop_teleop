@@ -181,7 +181,7 @@
                         <visible>true</visible>
                     </legend>
                     <plot_rate>30</plot_rate>
-                    <title>Position Aruco Python</title>
+                    <title>Position Aruco</title>
                 </column_0>
                 <column_1>
                     <axes>
@@ -408,7 +408,7 @@
                         <visible>true</visible>
                     </legend>
                     <plot_rate>30</plot_rate>
-                    <title>Orientation Aruco Python</title>
+                    <title>Orientation Aruco</title>
                 </column_1>
             </row_0>
             <row_1>
