@@ -26,6 +26,8 @@ This SDK is mainly written is C, it provides libraries for Unix system, Android 
 
 It also comes with a drone simulator called Sphinx, which is intended to help you test your application before flying with your actual drone. All the information about Sphinx (installation, user manual, application notes) is available HERE (Sphinx-Guide: https://developer.parrot.com/docs/sphinx/installation.html).
 
+Install Gazebo using Ubuntu packages [Default installation](http://gazebosim.org/tutorials?tut=install_ubuntu)
+
 ## Source: Parrot Bebop Drone ##
 
 You need to install external tools:

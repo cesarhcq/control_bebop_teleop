@@ -22,8 +22,6 @@ drone_pose = Odometry()
 
 path_drone = Path()
 
-pose = PoseStamped()
-
 msg_aruco = "Empty"
 
 landing = True
@@ -53,19 +51,19 @@ def getKey():
 ###############################################################################
 
 def callbackPoseAruco(posedata):
-  global path_drone, drone_pose
-  
-  drone_pose.header = posedata.header
-  drone_pose.pose = posedata.pose
+  global path_drone
 
-  pose.header = posedata.header
-  pose.header.stamp = rospy.Time.now()
-  pose.pose = posedata.pose.pose
+  poseStamped = PoseStamped()
+  poseStamped.header.seq = posedata.header.seq
+  poseStamped.header.frame_id = "path_drone"
+  poseStamped.header.stamp = rospy.Time.now()
+  poseStamped.pose = posedata.pose.pose
   
-  path_drone.header = pose.header
-  path_drone.poses.append(pose)
+  path_drone.header = poseStamped.header
+  path_drone.poses.append(poseStamped)
 
   path_pub.publish(path_drone)
+  rate.sleep()
 
 ###############################################################################
 
@@ -326,7 +324,7 @@ if __name__ == '__main__':
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(100.0) #-- 100Hz
+  rate = rospy.Rate(10.0) #-- 100Hz
 
   print('Program Started')
   print(msg)

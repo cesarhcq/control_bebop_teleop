@@ -126,7 +126,7 @@ class aruco_odom:
                                                   cameraMatrix=camera_matrix,
                                                   distCoeff=camera_distortion)
 
-    if ids != None and ids[0] == id_to_find:
+    if ids[0] == id_to_find:
       #-- ret= [rvec,tvec, ?]
       #-- array of rotation and position of each marker in camera frame
       #-- rvec = [[rvec_1, [rvec2], ...]]  attitude of the marker respect to camera frame
