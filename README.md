@@ -86,8 +86,7 @@ The command to build the SDK for Unix platform is:
 $ ./build.sh -p arsdk-native -t build-sdk -j
 ```
 
-> **Note** if you want to build and use the `gazebo_mavlink_interface` plugin you have to get MAVROS as an additional dependency from link below. Follow the installation instructions provided there and build all of its packages prior to building the rest of your workspace [Installation-MAVROS] https://github.com/mavlink/mavros
-    ```
+> **Note** if you want to build and use the `gazebo_mavlink_interface` plugin you have to get MAVROS as an additional dependency from link below. Follow the installation instructions provided there and build all of its packages prior to building the rest of your workspace [Installation-MAVROS](https://github.com/mavlink/mavros)
 
 
 bebop_autonomy - ROS Driver for Parrot Bebop Drone (quadrocopter) 1.0 & 2.0
