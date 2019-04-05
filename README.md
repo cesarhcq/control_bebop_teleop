@@ -47,13 +47,19 @@ You need to install external tools:
 $ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
 ```
 
-You should to upgrade python with pip upgrade:
+You must install and upgrade python with pip upgrade:
+
 ```
 $ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
 $ sudo apt-get install python-dev python-pip python3-dev python3-pip
 $ sudo -H pip2 install -U pip numpy
-
+$ sudo -H pip3 install -U pip numpy
 $ sudo pip install numpy scipy matplotlib scikit-image scikit-learn ipython
+```
+
+:bangbang: **Do not forget to install the Aruco-ROS:**
+
+```
 $ sudo apt-get install ros-kinetic-joy ros-kinetic-octomap-ros ros-kinetic-aruco python-wstool python-catkin-tools
 ```
 
@@ -79,6 +85,13 @@ The command to build the SDK for Unix platform is:
 ```
 $ ./build.sh -p arsdk-native -t build-sdk -j
 ```
+
+> **Note** if you want to build and use the `gazebo_mavlink_interface` plugin you have to get MAVROS as an additional dependency from link below. Follow the installation instructions provided there and build all of its packages prior to building the rest of your workspace. 
+    ```
+    https://github.com/mavlink/mavros
+    ```
+
+
 bebop_autonomy - ROS Driver for Parrot Bebop Drone (quadrocopter) 1.0 & 2.0
 ===========================================================================
 
