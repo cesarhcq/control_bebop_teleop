@@ -47,6 +47,16 @@ You need to install external tools:
 $ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
 ```
 
+You should to upgrade python with pip upgrade:
+```
+$ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+$ sudo apt-get install python-dev python-pip python3-dev python3-pip
+$ sudo -H pip2 install -U pip numpy
+
+$ sudo pip install numpy scipy matplotlib scikit-image scikit-learn ipython
+$ sudo apt-get install ros-kinetic-joy ros-kinetic-octomap-ros ros-kinetic-aruco python-wstool python-catkin-tools
+```
+
 Download all sources
 
 SDK sources are hosted on github. To download the latest release, you only have to init repo with the arsdk_manifests url:
