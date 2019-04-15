@@ -226,7 +226,7 @@ Change the parameter `<stole_interface>` according to your ifconfig result. In o
 Change the IP `<launch> = bebop_node.launch` according to IP drone. In case of simulation, you should use `default="10.202.0.1"`
 
 ```
-$ cd /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/launch/
+$ cd bebop_ws/src/bebop_autonomy/bebop_driver/launch/
 
 $ subl bebop_node.launch
 ```
@@ -254,7 +254,7 @@ $ subl bebop_node.launch
 If you need, you can chance of camera calibration file, the first file is bebop2 with 856x480:
 
 ```
-$ subl /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
+$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
 ```
 ```
 image_width: 856
@@ -282,7 +282,7 @@ projection_matrix:
 The second file is bebop1 with 640x368:
 
 ```
-$ subl /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
+$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
 ```
 ```
 image_width: 640
