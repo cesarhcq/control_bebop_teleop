@@ -131,13 +131,23 @@ Just follow the wiki installation for Parrot 1.0 & 2.0
 
 Compiling From Source - [Installation-BebopAutonomy](https://bebop-autonomy.readthedocs.io/en/latest/installation.html)
 
-Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/firststep.html)
+Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/system-requirements.html)
 
 Learn About: Rotation Matrix and Euler Angles - [M3x3-RPY](https://www.learnopencv.com/rotation-matrix-to-euler-angles/)
 
 
 Start the First Simulation using Bebop 2, Gazebo and Sphinx
 ===========================================================
+
+### Prerequisite - minimal system requirements ###
+
+A minimum of 1 GByte of storage is necessary to run Sphinx.
+
+The PC must support OpenGL in version 3.0 or higher. To check your version, you can type:
+
+```
+$ glxinfo | grep "OpenGL version"
+```
 
 #### Add new apt repository to your system ####
 
