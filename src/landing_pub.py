@@ -51,7 +51,10 @@ def getKey():
 ###############################################################################
 
 def callbackPoseAruco(posedata):
-  global path_drone
+  global path_drone, drone_pose
+
+  # recive date of odometry aruco
+  drone_pose = posedata
 
   poseStamped = PoseStamped()
   poseStamped.header.seq = posedata.header.seq
@@ -63,7 +66,7 @@ def callbackPoseAruco(posedata):
   path_drone.poses.append(poseStamped)
 
   path_pub.publish(path_drone)
-  rate.sleep()
+
 
 ###############################################################################
 
@@ -111,6 +114,7 @@ def moveUp():
  ###############################################################################
 
 def moveDown():
+  global drone_pose
   
   velocity = Twist()
 
@@ -137,7 +141,7 @@ def moveDown():
   ###############################################################################
 
 def autoLanding():
-  global landing, drone_pose, pose
+  global landing, drone_pose
 
   # z data orientation -- 20m
   k = 2e-3
@@ -178,11 +182,11 @@ def autoLanding():
   while not rospy.is_shutdown() and landing:
 
     current_time = rospy.Time.now()
-    dt = (current_time - pose.header.stamp).to_sec()
-    # print('********tempo dt: {} current_time {} pose.header.stamp {}'.format(dt,current_time.to_sec(),pose.header.stamp.to_sec()))
+    dt = (current_time - drone_pose.header.stamp).to_sec()
+    #print('********tempo dt: {} current_time {} pose.header.stamp {}'.format(dt,current_time.to_sec(),drone_pose.header.stamp.to_sec()))
 
     if(dt > 1):
-      # rospy.loginfo('**id_aruco = False')
+      #rospy.loginfo('**id_aruco = False')
       id_aruco = False
       velocity_drone.linear.y = 0
       velocity_drone.linear.x = 0
@@ -193,7 +197,7 @@ def autoLanding():
       velocity_drone.angular.z = 0
       vel_drone_pub.publish(velocity_drone)
     else:
-      # rospy.loginfo('**id_aruco = True')
+      #rospy.loginfo('**id_aruco = True')
       id_aruco = True
 
     if angle_camera == -84 and id_aruco == True:
@@ -324,7 +328,7 @@ if __name__ == '__main__':
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(10.0) #-- 100Hz
+  rate = rospy.Rate(100.0) #-- 100Hz
 
   print('Program Started')
   print(msg)
@@ -358,6 +362,7 @@ if __name__ == '__main__':
       elif key == '5': # condition created in order to pressed key 5 and generates drone descent movement
         print('key 5 pressed - MoveDown')
         moveDown()
+        print(msg)
 
       elif key == '6': # condition created in order to pressed key 6 and generates Auto-Landing of drone
         print('key 6 pressed - Auto-Landing') 
