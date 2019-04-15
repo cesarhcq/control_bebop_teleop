@@ -139,6 +139,24 @@ Learn About: Rotation Matrix and Euler Angles - [M3x3-RPY](https://www.learnopen
 Start the First Simulation using Bebop 2, Gazebo and Sphinx
 ===========================================================
 
+#### Add new apt repository to your system ####
+
+Setup your computer to accept packages from Parrot’s public server.
+
+```
+$ echo "deb http://plf.parrot.com/sphinx/binary `lsb_release -cs`/" | sudo tee /etc/apt/sources.list.d/sphinx.list > /dev/null
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 508B1AE5
+```
+
+#### Install the packages ####
+
+```
+$ sudo apt-get update
+$ sudo apt-get install parrot-sphinx
+```
+
+> **Important:** As told at the end of the installation, you need to log out from your session, then relog to complete the installation.
+
 Enter in your Catkin Workspace
 
 #### Firmwared ####
