@@ -392,7 +392,7 @@ Start RVIZ (Robot Visualizer) in a new console:
 ```
 $ cd ~/bebop_ws
 
-$ rosrun rviz rviz -d /src/control_bebop_teleop/rviz_config_aruco.rviz
+$ rosrun rviz rviz -d src/control_bebop_teleop/rviz_config_aruco.rviz
 ```
 
 Open a new console and change to the directory where you have downloaded the example dataset. Then type:
