@@ -92,6 +92,7 @@ class aruco_odom:
     self.pose_aruco_pub = rospy.Publisher("bebop/pose_aruco",Odometry, queue_size = 100)
     self.orientation_euler_pub = rospy.Publisher("bebop/euler_aruco",Twist, queue_size = 100)
     self.image_pub = rospy.Publisher("bebop/image_aruco",Image, queue_size = 100)
+    #self.orientation_euler_pub = rospy.Publisher("bebop/orientation_euler",Twist, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw" and publisher to "bebop/image_aruco"
     self.bridge = CvBridge()
@@ -127,7 +128,7 @@ class aruco_odom:
                                                   cameraMatrix=camera_matrix,
                                                   distCoeff=camera_distortion)
 
-    if ids != None and ids[0] == id_to_find:
+    if ids[0] == id_to_find:
       #-- ret= [rvec,tvec, ?]
       #-- array of rotation and position of each marker in camera frame
       #-- rvec = [[rvec_1, [rvec2], ...]]  attitude of the marker respect to camera frame
@@ -192,6 +193,15 @@ class aruco_odom:
                           aruco_odom.header.stamp, 
                           "drone_base",
                           "odom_aruco") #world
+
+      euler_ori = Twist()
+      euler_ori.linear.x = -tvec[0]
+      euler_ori.linear.y = tvec[1]
+      euler_ori.linear.z = tvec[2]
+
+      euler_ori.angular.x = math.degrees(0)
+      euler_ori.angular.y = math.degrees(0)
+      euler_ori.angular.z = math.degrees(yaw_camera)
 
       self.Keyframe_aruco += 1
 

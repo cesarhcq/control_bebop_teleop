@@ -26,6 +26,8 @@ This SDK is mainly written is C, it provides libraries for Unix system, Android 
 
 It also comes with a drone simulator called Sphinx, which is intended to help you test your application before flying with your actual drone. All the information about Sphinx (installation, user manual, application notes) is available HERE (Sphinx-Guide: https://developer.parrot.com/docs/sphinx/installation.html).
 
+Install Gazebo using Ubuntu packages [Default installation](http://gazebosim.org/tutorials?tut=install_ubuntu)
+
 ## Source: Parrot Bebop Drone ##
 
 You need to install external tools:
@@ -45,6 +47,22 @@ You need to install external tools:
 
 ```
 $ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+```
+
+You must install and upgrade python with pip upgrade:
+
+```
+$ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+$ sudo apt-get install python-dev python-pip python3-dev python3-pip
+$ sudo -H pip2 install -U pip numpy
+$ sudo -H pip3 install -U pip numpy
+$ sudo pip install numpy scipy matplotlib scikit-image scikit-learn ipython
+```
+
+:bangbang: **Do not forget to install the Aruco-ROS:**
+
+```
+$ sudo apt-get install ros-kinetic-joy ros-kinetic-octomap-ros ros-kinetic-aruco python-wstool python-catkin-tools
 ```
 
 Download all sources
@@ -69,6 +87,10 @@ The command to build the SDK for Unix platform is:
 ```
 $ ./build.sh -p arsdk-native -t build-sdk -j
 ```
+
+> **Note** if you want to build and use the `gazebo_mavlink_interface` plugin you have to get MAVROS as an additional dependency from link below. Follow the installation instructions provided there and build all of its packages prior to building the rest of your workspace [Installation-MAVROS](https://github.com/mavlink/mavros)
+
+
 bebop_autonomy - ROS Driver for Parrot Bebop Drone (quadrocopter) 1.0 & 2.0
 ===========================================================================
 
@@ -109,13 +131,41 @@ Just follow the wiki installation for Parrot 1.0 & 2.0
 
 Compiling From Source - [Installation-BebopAutonomy](https://bebop-autonomy.readthedocs.io/en/latest/installation.html)
 
-Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/firststep.html)
+Sphinx Guide - [Firststep](https://developer.parrot.com/docs/sphinx/system-requirements.html)
 
 Learn About: Rotation Matrix and Euler Angles - [M3x3-RPY](https://www.learnopencv.com/rotation-matrix-to-euler-angles/)
 
 
 Start the First Simulation using Bebop 2, Gazebo and Sphinx
 ===========================================================
+
+### Prerequisite - minimal system requirements ###
+
+A minimum of 1 GByte of storage is necessary to run Sphinx.
+
+The PC must support OpenGL in version 3.0 or higher. To check your version, you can type:
+
+```
+$ glxinfo | grep "OpenGL version"
+```
+
+#### Add new apt repository to your system ####
+
+Setup your computer to accept packages from Parrot’s public server.
+
+```
+$ echo "deb http://plf.parrot.com/sphinx/binary `lsb_release -cs`/" | sudo tee /etc/apt/sources.list.d/sphinx.list > /dev/null
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 508B1AE5
+```
+
+#### Install the packages ####
+
+```
+$ sudo apt-get update
+$ sudo apt-get install parrot-sphinx
+```
+
+> **Important:** As told at the end of the installation, you need to log out from your session, then relog to complete the installation.
 
 Enter in your Catkin Workspace
 
@@ -186,7 +236,7 @@ Change the parameter `<stole_interface>` according to your ifconfig result. In o
 Change the IP `<launch> = bebop_node.launch` according to IP drone. In case of simulation, you should use `default="10.202.0.1"`
 
 ```
-$ cd /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/launch/
+$ cd bebop_ws/src/bebop_autonomy/bebop_driver/launch/
 
 $ subl bebop_node.launch
 ```
@@ -214,7 +264,7 @@ $ subl bebop_node.launch
 If you need, you can chance of camera calibration file, the first file is bebop2 with 856x480:
 
 ```
-$ subl /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
+$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
 ```
 ```
 image_width: 856
@@ -242,7 +292,7 @@ projection_matrix:
 The second file is bebop1 with 640x368:
 
 ```
-$ subl /home/<user>/bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
+$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
 ```
 ```
 image_width: 640
@@ -342,7 +392,7 @@ Start RVIZ (Robot Visualizer) in a new console:
 ```
 $ cd ~/bebop_ws
 
-$ rosrun rviz rviz -d /src/control_bebop_teleop/rviz_config_aruco.rviz
+$ rosrun rviz rviz -d src/control_bebop_teleop/rviz_config_aruco.rviz
 ```
 
 Open a new console and change to the directory where you have downloaded the example dataset. Then type:

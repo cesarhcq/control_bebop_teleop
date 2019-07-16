@@ -23,8 +23,6 @@ drone_pose = Odometry()
 
 path_drone = Path()
 
-pose = PoseStamped()
-
 msg_aruco = "Empty"
 
 landing = True
@@ -55,18 +53,21 @@ def getKey():
 
 def callbackPoseAruco(posedata):
   global path_drone, drone_pose
-  
-  drone_pose.header = posedata.header
-  drone_pose.pose = posedata.pose
 
-  pose.header = posedata.header
-  pose.header.stamp = rospy.Time.now()
-  pose.pose = posedata.pose.pose
+  # recive date of odometry aruco
+  drone_pose = posedata
+
+  poseStamped = PoseStamped()
+  poseStamped.header.seq = posedata.header.seq
+  poseStamped.header.frame_id = "path_drone"
+  poseStamped.header.stamp = rospy.Time.now()
+  poseStamped.pose = posedata.pose.pose
   
-  path_drone.header = pose.header
-  path_drone.poses.append(pose)
+  path_drone.header = poseStamped.header
+  path_drone.poses.append(poseStamped)
 
   path_pub.publish(path_drone)
+
 
 ###############################################################################
 
@@ -114,6 +115,7 @@ def moveUp():
  ###############################################################################
 
 def moveDown():
+  global drone_pose
   
   velocity = Twist()
 
@@ -140,7 +142,7 @@ def moveDown():
   ###############################################################################
 
 def autoLanding():
-  global landing, drone_pose, pose
+  global landing, drone_pose
 
   # z data orientation -- 20m
   k = 2e-3
@@ -181,11 +183,11 @@ def autoLanding():
   while not rospy.is_shutdown() and landing:
 
     current_time = rospy.Time.now()
-    dt = (current_time - pose.header.stamp).to_sec()
-    # print('********tempo dt: {} current_time {} pose.header.stamp {}'.format(dt,current_time.to_sec(),pose.header.stamp.to_sec()))
+    dt = (current_time - drone_pose.header.stamp).to_sec()
+    #print('********tempo dt: {} current_time {} pose.header.stamp {}'.format(dt,current_time.to_sec(),drone_pose.header.stamp.to_sec()))
 
     if(dt > 1):
-      # rospy.loginfo('**id_aruco = False')
+      #rospy.loginfo('**id_aruco = False')
       id_aruco = False
       velocity_drone.linear.y = 0
       velocity_drone.linear.x = 0
@@ -196,7 +198,7 @@ def autoLanding():
       velocity_drone.angular.z = 0
       vel_drone_pub.publish(velocity_drone)
     else:
-      # rospy.loginfo('**id_aruco = True')
+      #rospy.loginfo('**id_aruco = True')
       id_aruco = True
 
     if angle_camera == -84 and id_aruco == True:
@@ -361,6 +363,7 @@ if __name__ == '__main__':
       elif key == '5': # condition created in order to pressed key 5 and generates drone descent movement
         print('key 5 pressed - MoveDown')
         moveDown()
+        print(msg)
 
       elif key == '6': # condition created in order to pressed key 6 and generates Auto-Landing of drone
         print('key 6 pressed - Auto-Landing') 
