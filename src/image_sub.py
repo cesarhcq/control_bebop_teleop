@@ -33,7 +33,7 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL) #pata de urso
 parameters =  aruco.DetectorParameters_create()
 
 #-- Get the camera calibration\n",
-calib_path = '/home/victor/bebop_ws/src/control_bebop_teleop/'
+calib_path = '/home/acta/bebop_ws/src/control_bebop_teleop/'
 camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
 camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
 
