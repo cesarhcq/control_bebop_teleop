@@ -205,9 +205,7 @@ $ ifconfig or iwconfig
 Now, Modify the XML file of the bebop2.drone located in:
 
 ```
-$ cd /opt/parrot-sphinx/usr/share/sphinx/drones/
-
-$ subl bebop2.drone
+$ subl /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 Change the parameter `<stole_interface>` according to your ifconfig result. In our case `wlp3s0`.
@@ -236,9 +234,7 @@ Change the parameter `<stole_interface>` according to your ifconfig result. In o
 Change the IP `<launch> = bebop_node.launch` according to IP drone. In case of simulation, you should use `default="10.202.0.1"`
 
 ```
-$ cd bebop_ws/src/bebop_autonomy/bebop_driver/launch/
-
-$ subl bebop_node.launch
+$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/launch/bebop_node.launch
 ```
 ```
 <?xml version="1.0"?>
@@ -264,7 +260,7 @@ $ subl bebop_node.launch
 If you need, you can chance of camera calibration file, the first file is bebop2 with 856x480:
 
 ```
-$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
+$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
 ```
 ```
 image_width: 856
@@ -292,7 +288,7 @@ projection_matrix:
 The second file is bebop1 with 640x368:
 
 ```
-$ subl bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
+$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
 ```
 ```
 image_width: 640
@@ -348,7 +344,7 @@ $ sphinx src/control_bebop_teleop/world/svo_world.world /opt/parrot-sphinx/usr/s
 If you wanna find and change the Big_box with ArUco, if you do not have the big_box, move the file to `.gazebo/models/...`:
 
 ```
-/home/<user>/bebop_ws/src/control_bebop_teleop/world/big_box
+/bebop_ws/src/control_bebop_teleop/world/big_box
 
 /home/<user>/.gazebo/models/big_box
 ```
