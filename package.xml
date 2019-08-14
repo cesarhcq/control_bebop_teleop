@@ -7,7 +7,7 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="cesar@todo.todo">cesar</maintainer>
+  <maintainer email="cesarhcq@gmail.com">cesar</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -49,7 +49,8 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-
+<!--   <depend>tensorflow_catkin</depend>
+  <depend>python-tensorflow-pip</depend> -->
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
