@@ -5,7 +5,8 @@ import roslib
 roslib.load_manifest('control_bebop_teleop')
 
 import rospy
-import sys, time, math
+import sys, time, math, os
+import sys
 from math import sin, cos, pi
 import cv2
 import tf
@@ -32,7 +33,13 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL) #pata de urso
 #aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50) #
 parameters =  aruco.DetectorParameters_create()
 
-#-- Get the camera calibration\n",
+######### -- Get the camera calibration\n" ############
+# cameraMatrix = os.path.join(os.path.dirname(sys.path[0]),'camera_info','cameraMatrix.txt')
+# cameraDistortion = os.path.join(os.path.dirname(sys.path[0]),'camera_info','cameraDistortion.txt')
+
+# camera_matrix = np.loadtxt(cameraMatrix)
+# camera_distortion = np.loadtxt(cameraDistortion)
+
 calib_path = '/home/acta/bebop_ws/src/control_bebop_teleop/'
 camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
 camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
