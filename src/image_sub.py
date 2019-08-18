@@ -40,9 +40,10 @@ parameters =  aruco.DetectorParameters_create()
 # camera_matrix = np.loadtxt(cameraMatrix)
 # camera_distortion = np.loadtxt(cameraDistortion)
 
-calib_path = '/home/acta/bebop_ws/src/control_bebop_teleop/'
-camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
-camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
+#-- Get the camera calibration\n",
+CAMERA_INFO_PATH = os.path.join(os.path.dirname(sys.path[0]),'camera_info')
+camera_matrix = np.loadtxt(CAMERA_INFO_PATH+'/cameraMatrix.txt', delimiter = ',')
+camera_distortion = np.loadtxt(CAMERA_INFO_PATH+'/cameraDistortion.txt', delimiter = ',')
 
 #-- Font for the text in the image
 font = cv2.FONT_HERSHEY_PLAIN
