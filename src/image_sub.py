@@ -4,7 +4,7 @@ from __future__ import print_function
 import roslib
 roslib.load_manifest('control_bebop_teleop')
 
-import sys, time, math
+import sys, time, math, os
 import rospy
 import cv2
 
@@ -83,9 +83,9 @@ class aruco_data:
     parameters =  aruco.DetectorParameters_create()
 
     #-- Get the camera calibration\n",
-    calib_path = '/home/cesar/bebop_ws/src/control_bebop_teleop/'
-    camera_matrix = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter = ',')
-    camera_distortion = np.loadtxt(calib_path+'cameraDistortion.txt', delimiter = ',')
+    MYDIR_PATH = os.path.join(os.path.dirname(sys.path[0]),'Parameters')
+    camera_matrix = np.loadtxt(MYDIR_PATH+'/cameraMatrix.txt', delimiter = ',')
+    camera_distortion = np.loadtxt(MYDIR_PATH+'/cameraDistortion.txt', delimiter = ',')
 
     #-- 180 deg rotation matrix around x axis
     R_flip = np.zeros((3,3), dtype=np.float)

@@ -4,7 +4,7 @@ from __future__ import print_function
 import roslib
 roslib.load_manifest('control_bebop_teleop')
 
-import sys, time, math
+import sys, time, math, os
 import rospy
 import cv2
 
@@ -16,7 +16,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
- 
+PARAMETERS_PATH = os.path.join(os.path.dirname(sys.path[0]),'Parameters')
+
 class hough_lines:
  
   def __init__(self):
