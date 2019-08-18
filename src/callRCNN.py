@@ -58,7 +58,7 @@ class hough_lines:
     #linear_forward(img_resized, 1, 1)
 
     #A, cache = linear_activation_forward(img_resized, parametersCurvenonCurve['W' + str(1)], parametersCurvenonCurve['b' + str(1)], activation = "relu")
-    predict_curve(img_resized,parametersCurvenonCurve)
+    # predict_curve(img_resized,parametersCurvenonCurve)
 
     cv2.imshow("Image",img_resized)
     #cv2.imshow("Image-edges",edges)
