@@ -19,25 +19,20 @@ import rospy
 from std_msgs.msg import String, Header
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
-
-# Object detection module imports
-import object_detection
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
 
 from geometry_msgs.msg import Twist
 
-PARAMETERS_PATH = os.path.join(os.path.dirname(sys.path[0]),'data','Parameters')
+PARAMETERS_PATH = os.path.join(os.path.dirname(sys.path[0]),'Parameters')
 
-class hough_lines:
+class image_rcnn:
  
   def __init__(self):
-    self.image_pub = rospy.Publisher("debug_image",Image, queue_size=1)
+    
+    #self.image_pub = rospy.Publisher("bebop/image_rcnn",Image, queue_size=1)
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("image",Image,self.callback, queue_size=1, buff_size=2**24)
+    self.image_sub = rospy.Subscriber("bebop/image_raw",Image,self.callback, queue_size=1, buff_size=2**24)
 
 ###############################################################################
    
@@ -68,7 +63,7 @@ class hough_lines:
         rospy.loginfo("Reta")
 
 
-    cv2.imshow("Image",src_image)
+    #cv2.imshow("Image",src_image)
     #cv2.imshow("Image-edges",edges)
     cv2.waitKey(1)
 
@@ -508,7 +503,7 @@ def predict_curve(X, parameters):
     
     # convert probas to 0/1 predictions
     for i in range(0, probas.shape[1]):
-        if probas[0,i] > 0.5:
+        if probas[0,i] > 0.8:
             p[0,i] = 1
         else:
             p[0,i] = 0
@@ -537,9 +532,9 @@ def print_mislabeled_images(classes, X, y, p):
 
 def main(args):
 
-  ic = hough_lines()
+  ic = image_rcnn()
   #-- Name of node
-  rospy.init_node('hough', log_level=rospy.DEBUG)
+  rospy.init_node('image_rcnn', log_level=rospy.DEBUG)
 
   try:
       rospy.spin()

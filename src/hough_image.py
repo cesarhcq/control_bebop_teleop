@@ -41,8 +41,10 @@ class hough_lines:
 
     edges = cv2.Canny(gray, 50, 50, apertureSize=3, L2gradient=True) #Deteccao de bordas
 
+    # Detecção de linhas
     lines = cv2.HoughLines(edges, numLines, np.pi/90, 100)
 
+    # Seleção das melhores linhas desejadas
     if lines is not None: 
             if lines.shape[0] >= numLines:
                 x = 0
@@ -62,10 +64,10 @@ class hough_lines:
                         cv2.line(edges, (x1, y1), (x2, y2), (0, 0, 255), 2)
                         
                         med_theta = med_theta + (theta/numLines)
-                        x = x+x1+x2 
+                        x = x+x1+x2
     
 
-    cv2.imshow("Image",src_image)
+    #cv2.imshow("Image",src_image)
     #cv2.imshow("Image-edges",edges)
     cv2.waitKey(1)
 
