@@ -136,8 +136,11 @@ class aruco_odom:
                                                   cameraMatrix=camera_matrix,
                                                   distCoeff=camera_distortion)
 
-    if ids[0] == id_to_find:
-      rospy.loginfo(" ************* ")
+    #print("ids:", int(ids))
+    #print("ids[0]:", ids[0])
+    #int(ids) == id_to_find:
+
+    if (int(ids[0]) != None) and (int(ids[0]) == id_to_find):
       #-- ret= [rvec,tvec, ?]
       #-- array of rotation and position of each marker in camera frame
       #-- rvec = [[rvec_1, [rvec2], ...]]  attitude of the marker respect to camera frame
@@ -180,8 +183,8 @@ class aruco_odom:
 
       ###############################################################################
 
-      cv2.imshow("Image-Aruco", src_image)
-      cv2.waitKey(1)
+      #cv2.imshow("Image-Aruco", src_image)
+      #cv2.waitKey(1)
 
       aruco_odom = Odometry()
       #aruco_odom.header.stamp = rospy.Time.now()-first_time
@@ -223,7 +226,7 @@ class aruco_odom:
       euler_ori.angular.y = math.degrees(0)
       euler_ori.angular.z = math.degrees(yaw_camera)
 
-      rospy.loginfo('Id detected!')
+      #rospy.loginfo('Id detected!')
 
       try:
         self.pose_aruco_pub.publish(aruco_odom)

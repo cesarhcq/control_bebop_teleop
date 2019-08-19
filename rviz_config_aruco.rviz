@@ -9,7 +9,6 @@ Panels:
         - /Grid1/Offset1
         - /TF1
         - /Image-Aruco11
-        - /Path1
       Splitter Ratio: 0.541666687
     Tree Height: 455
   - Class: rviz/Selection
@@ -79,10 +78,6 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        odom:
-          base_link:
-            camera_base_link:
-              {}
         odom_aruco:
           drone_base:
             {}
@@ -163,10 +158,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.599796832
+      Pitch: 0.949796915
       Target Frame: camera_base_link
       Value: Orbit (rviz)
-      Yaw: 4.39042139
+      Yaw: 4.55042458
     Saved: ~
 Window Geometry:
   Displays:
