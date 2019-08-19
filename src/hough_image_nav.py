@@ -106,15 +106,24 @@ class hough_lines:
     # rospy.loginfo("linha 2: %f",math.degrees(lines_vector[1]))
     # rospy.loginfo("linha 3: %f",math.degrees(lines_vector[2]))
 
-
     nav_drone = Twist()
-    nav_drone.linear.x = 0
-    nav_drone.linear.y = y_correction
-    nav_drone.linear.z = 0
 
-    nav_drone.angular.x = 0
-    nav_drone.angular.y = 0
-    nav_drone.angular.z = yaw*(np.pi/180)
+    if lines is not None:
+      nav_drone.linear.x = 0.05
+      nav_drone.linear.y = y_correction
+      nav_drone.linear.z = 0
+
+      nav_drone.angular.x = 0
+      nav_drone.angular.y = 0
+      nav_drone.angular.z = yaw*(np.pi/180)
+    else:
+      nav_drone.linear.x = 0
+      nav_drone.linear.y = 0
+      nav_drone.linear.z = 0
+
+      nav_drone.angular.x = 0
+      nav_drone.angular.y = 0
+      nav_drone.angular.z = 0
 
     try:
       self.nav_hough_lines_pub.publish(nav_drone)

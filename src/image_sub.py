@@ -48,7 +48,7 @@ camera_distortion = np.loadtxt(CAMERA_INFO_PATH+'/cameraDistortion.txt', delimit
 #-- Font for the text in the image
 font = cv2.FONT_HERSHEY_PLAIN
 
-first_time = 0
+#first_time = 0
 
 ###############################################################################
 #------- ROTATIONS https://www.learnopencv.com/rotation-matrix-to-euler-angles/
@@ -112,7 +112,7 @@ class aruco_odom:
    
   def callbackImage(self,data):
 
-    global first_time
+    #global first_time
 
     try:
       src_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -137,6 +137,7 @@ class aruco_odom:
                                                   distCoeff=camera_distortion)
 
     if ids[0] == id_to_find:
+      rospy.loginfo(" ************* ")
       #-- ret= [rvec,tvec, ?]
       #-- array of rotation and position of each marker in camera frame
       #-- rvec = [[rvec_1, [rvec2], ...]]  attitude of the marker respect to camera frame
@@ -179,7 +180,7 @@ class aruco_odom:
 
       ###############################################################################
 
-      # cv2.imshow("Image-Aruco", src_image)
+      cv2.imshow("Image-Aruco", src_image)
       cv2.waitKey(1)
 
       aruco_odom = Odometry()
@@ -222,6 +223,8 @@ class aruco_odom:
       euler_ori.angular.y = math.degrees(0)
       euler_ori.angular.z = math.degrees(yaw_camera)
 
+      rospy.loginfo('Id detected!')
+
       try:
         self.pose_aruco_pub.publish(aruco_odom)
         self.orientation_euler_pub.publish(euler_ori)
@@ -245,10 +248,10 @@ def main(args):
 
   ic = aruco_odom()
   #-- Name of node
-  rospy.init_node('aruco_odom')
+  rospy.init_node('aruco_odom', log_level=rospy.DEBUG)
   
   rospy.loginfo('init_node')
-  first_time = rospy.Time.now()
+  #first_time = rospy.Time.now()
 
   try: 
     rospy.spin()

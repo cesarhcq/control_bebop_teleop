@@ -324,7 +324,7 @@ def autoNavigation():
   while not rospy.is_shutdown() and navigation:
 
     #rospy.loginfo('------------------Init Navigation----------------------')
-    velocity.linear.x = 0
+    velocity.linear.x = vel_hough.linear.x
     velocity.linear.y = -vel_hough.linear.y
     velocity.linear.z = 0
 
