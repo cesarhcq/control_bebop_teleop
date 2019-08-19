@@ -23,19 +23,24 @@ drone_pose = Odometry()
 
 path_drone = Path()
 
+vel_hough = Twist()
+
 msg_aruco = "Empty"
 
 landing = True
 
+navigation = True
+
 msg = """
 Keyboard commands for Autonomous Landing of the Quadcopter
 ----------------------------------------------------------
-TakeOff      - Press 1
-Landing      - Press 2
-MoveCamera   - Press 3
-MoveUp       - Press 4
-MoveDown     - Press 5
-Auto-Landing - Press 6
+TakeOff         - Press 1
+Landing         - Press 2
+MoveCamera      - Press 3
+MoveUp          - Press 4
+MoveDown        - Press 5
+Auto-Landing    - Press 6
+Auto-Navigation - Press 7
 ----------------------------------------------------------
 Ctrl + C to quit
 """
@@ -312,38 +317,41 @@ def autoLanding():
 ###############################################################################
 
 def autoNavigation():
-  global drone_pose
+  global vel_hough
   
   velocity = Twist()
 
-  cont = 0
+  while not rospy.is_shutdown() and navigation:
 
-  while not rospy.is_shutdown() and cont < 500:
-
-    #print('init cont: ', cont)
+    #rospy.loginfo('------------------Init Navigation----------------------')
     velocity.linear.x = 0
-    velocity.linear.y = 0
-    velocity.linear.z = -1
+    velocity.linear.y = -vel_hough.linear.y
+    velocity.linear.z = 0
 
     velocity.angular.x = 0
     velocity.angular.y = 0
-    velocity.angular.z = 0
+    velocity.angular.z = vel_hough.angular.z
     vel_drone_pub.publish(velocity)
 
-    cont += 1
-    print('Z with Aruco:',drone_pose.pose.pose.position.z)
-
-    # print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
+
+
+def callbackNavHough(posedata):
+
+  global vel_hough
+
+  vel_hough = posedata
+
 
   ###############################################################################
    
 if __name__ == '__main__':
   settings = termios.tcgetattr(sys.stdin)
-  rospy.init_node('autonomous_navigation')
+  rospy.init_node('autonomous_navigation',log_level=rospy.DEBUG)
 
   # create the important subscribers
   pose_sub = rospy.Subscriber("bebop/pose_aruco",Odometry, callbackPoseAruco)
+  hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 100)
@@ -408,6 +416,9 @@ if __name__ == '__main__':
       else:
         print('Wrong key!')
         print(msg)
+
+      navigation = True
+      landing = True
 
   except rospy.ROSInterruptException:
     print('Erro')

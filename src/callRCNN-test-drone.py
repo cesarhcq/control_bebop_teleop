@@ -28,7 +28,7 @@ class image_rcnn:
  
   def __init__(self):
     
-    #self.image_pub = rospy.Publisher("bebop/image_rcnn",Image, queue_size=1)
+    # self.image_pub = rospy.Publisher("bebop/image_rcnn",Image, queue_size=1)
     
     #-- Create a supscriber from topic "image_raw"
     self.bridge = CvBridge()
@@ -68,10 +68,10 @@ class image_rcnn:
     cv2.waitKey(1)
 
 
-    try:
-      self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-    except CvBridgeError as e:
-      print(e)
+    # try:
+    #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
+    # except CvBridgeError as e:
+    #   print(e)
 
 
 ###############################################################################
