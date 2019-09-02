@@ -26,7 +26,7 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 #-- Define Tag\n",
 id_to_find = 273 # 1 273
-marker_size = 0.5 # 0.7 #-m -  0.172 m 
+marker_size = 0.1351 # 0.7 #-m -  0.172 m 
 
 #-- Define the Aruco dictionary\n",
 aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL) #pata de urso
