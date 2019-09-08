@@ -205,7 +205,7 @@ def autoLanding():
 
       # recive the position
       linearx = drone_pose.pose.pose.position.x
-      lineary = drone_pose.pose.pose.position.y
+      lineary = drone_pose.pose.pose.position.y-0.15
       linearz = drone_pose.pose.pose.position.z
 
       # recive the orientation
@@ -271,13 +271,15 @@ def autoLanding():
         rospy.loginfo('Drone is not Landing!')
 
       # Condition landing
-      if abs(linearz) <= 1.2 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
-        velocity_drone.linear.y = 1.0
-        rospy.sleep(5)
-        rospy.loginfo('rospy.sleep(5)')
-        vel_drone_pub.publish(velocity_drone)
+      if abs(linearz) <= 1.4 and abs(linearx) <= (tolerance_X+linearz*0.06) and abs(lineary) <= (tolerance_Y+linearz*0.06) and abs(angularz) <= (tolerance_Yaw+linearz*0.1):
+        #velocity_drone.linear.y = 1.0
+        #rospy.sleep(5)
+        #rospy.loginfo('rospy.sleep(5)')
+        #vel_drone_pub.publish(velocity_drone)
         land_pub.publish(empty_msg)
+        rospy.loginfo('Drone ready to Landing!')
         rospy.loginfo('Auto-Landing Performed!')
+        print('position x: {} position y: {}'.format(linearx, lineary))
         landing = False
         break
 
