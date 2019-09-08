@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version='2.0'?>
 <sdf version='1.5'>
   <model name='Big_box'>
     <link name='link'>
