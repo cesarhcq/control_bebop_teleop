@@ -46,34 +46,38 @@ You need to install external tools:
 * mplayer (only for specific Samples)
 
 ```
-$ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
 ```
 
 You must install and upgrade python with pip upgrade:
 
 ```
-$ sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
-$ sudo apt-get install python-dev python-pip python3-dev python3-pip
-$ sudo -H pip2 install -U pip numpy
-$ sudo -H pip3 install -U pip numpy
-$ sudo pip install numpy scipy matplotlib scikit-image scikit-learn ipython
+sudo apt install git repo build-essential autoconf libtool python python3 libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+
+sudo apt-get install python-dev python-pip python3-dev python3-pip
+
+sudo -H pip2 install -U pip numpy
+
+sudo -H pip3 install -U pip numpy
+
+sudo pip install numpy scipy matplotlib scikit-image scikit-learn ipython
 ```
 
 :bangbang: **Do not forget to install the Aruco-ROS:**
 
 ```
-$ sudo apt-get install ros-kinetic-joy ros-kinetic-octomap-ros ros-kinetic-aruco python-wstool python-catkin-tools
+sudo apt-get install ros-kinetic-joy ros-kinetic-octomap-ros ros-kinetic-aruco python-wstool python-catkin-tools
 ```
 
 Download all sources
 
 SDK sources are hosted on github. To download the latest release, you only have to init repo with the arsdk_manifests url:
 ```
-$ repo init -u https://github.com/Parrot-Developers/arsdk_manifests.git -m release.xml
+repo init -u https://github.com/Parrot-Developers/arsdk_manifests.git -m release.xml
 ```
 After that, you can download all the other repository automatically by executing the command:
 ```
-$ repo sync
+repo sync
 ```
 
 Then follow the How to build the SDK section:
@@ -85,7 +89,7 @@ Linux: Tested on Ubuntu 16.04 - xenial
 The command to build the SDK for Unix platform is:
 
 ```
-$ ./build.sh -p arsdk-native -t build-sdk -j
+./build.sh -p arsdk-native -t build-sdk -j
 ```
 
 > **Note** if you want to build and use the `gazebo_mavlink_interface` plugin you have to get MAVROS as an additional dependency from link below. Follow the installation instructions provided there and build all of its packages prior to building the rest of your workspace [Installation-MAVROS](https://github.com/mavlink/mavros)
@@ -99,20 +103,20 @@ bebop_autonomy is a ROS driver for Parrot Bebop 1.0 and 2.0 drones (quadrocopter
 ### If you don't have ROS workspace yet you can do so by ###
 
 ```
-$ mkdir -p ~/bebop_ws/src && cd ~/bebop_ws
-$ catkin init
-$ git clone https://github.com/AutonomyLab/bebop_autonomy.git src/bebop_autonomy
+mkdir -p ~/bebop_ws/src && cd ~/bebop_ws
+catkin init
+git clone https://github.com/AutonomyLab/bebop_autonomy.git src/bebop_autonomy
 # Update rosdep database and install dependencies (including parrot_arsdk)
-$ rosdep update
-$ rosdep install --from-paths src -i
+rosdep update
+rosdep install --from-paths src -i
 # Build the workspace
-$ catkin build
+catkin build
 ```
 
 ### Get the simulator and additional dependencies ###
 ```
-$ cd ~/bebop_ws/src
-$ git clone https://github.com/cesarhcq/control_bebop_teleop.git
+cd ~/bebop_ws/src
+git clone https://github.com/cesarhcq/control_bebop_teleop.git
 ```
 
 ```
@@ -146,7 +150,7 @@ A minimum of 1 GByte of storage is necessary to run Sphinx.
 The PC must support OpenGL in version 3.0 or higher. To check your version, you can type:
 
 ```
-$ glxinfo | grep "OpenGL version"
+glxinfo | grep "OpenGL version"
 ```
 
 #### Add new apt repository to your system ####
@@ -154,15 +158,15 @@ $ glxinfo | grep "OpenGL version"
 Setup your computer to accept packages from Parrot’s public server.
 
 ```
-$ echo "deb http://plf.parrot.com/sphinx/binary `lsb_release -cs`/" | sudo tee /etc/apt/sources.list.d/sphinx.list > /dev/null
-$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 508B1AE5
+echo "deb http://plf.parrot.com/sphinx/binary `lsb_release -cs`/" | sudo tee /etc/apt/sources.list.d/sphinx.list > /dev/null
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 508B1AE5
 ```
 
 #### Install the packages ####
 
 ```
-$ sudo apt-get update
-$ sudo apt-get install parrot-sphinx
+sudo apt-get update
+sudo apt-get install parrot-sphinx
 ```
 
 > **Important:** As told at the end of the installation, you need to log out from your session, then relog to complete the installation.
@@ -172,7 +176,7 @@ Enter in your Catkin Workspace
 #### Firmwared ####
 
 ```
-$ sudo systemctl start firmwared.service
+sudo systemctl start firmwared.service
 
 ```
 
@@ -181,7 +185,7 @@ $ sudo systemctl start firmwared.service
 In case you reboot/start your computer, you need to restart the firmwared service.
 
 ```
-$ sudo firmwared
+sudo firmwared
 ```
 
 The execution of firmwared is blocking so do not close your shell.
@@ -191,7 +195,7 @@ The execution of firmwared is blocking so do not close your shell.
 Enter the following command:
 
 ```
-$ fdc ping
+fdc ping
 
 PONG
 ```
@@ -199,13 +203,13 @@ PONG
 #### Check your wifi interface name ####
 
 ```
-$ ifconfig or iwconfig
+ifconfig or iwconfig
 ```
 
 Now, Modify the XML file of the bebop2.drone located in:
 
 ```
-$ subl /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+subl /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 Change the parameter `<stole_interface>` according to your ifconfig result. In our case `wlp3s0`.
@@ -234,7 +238,7 @@ Change the parameter `<stole_interface>` according to your ifconfig result. In o
 Change the IP `<launch> = bebop_node.launch` according to IP drone. In case of simulation, you should use `default="10.202.0.1"`
 
 ```
-$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/launch/bebop_node.launch
+subl ~bebop_ws/src/bebop_autonomy/bebop_driver/launch/bebop_node.launch
 ```
 ```
 <?xml version="1.0"?>
@@ -260,7 +264,7 @@ $ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/launch/bebop_node.launch
 If you need, you can chance of camera calibration file, the first file is bebop2 with 856x480:
 
 ```
-$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
+subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop2_camera_calib.yaml
 ```
 ```
 image_width: 856
@@ -288,7 +292,7 @@ projection_matrix:
 The second file is bebop1 with 640x368:
 
 ```
-$ subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
+subl ~bebop_ws/src/bebop_autonomy/bebop_driver/data/bebop1_camera_calib.yaml
 ```
 ```
 image_width: 640
@@ -318,9 +322,9 @@ projection_matrix:
 In the first window of terminal:
 
 ```
-$ sudo systemctl start firmwared.service
+sudo systemctl start firmwared.service
 
-$ fdc ping
+fdc ping
 
 PONG
 ```
@@ -328,17 +332,17 @@ PONG
 Check the IP with `iwconfig`:
 
 ```
-$ cd ~/bebop_ws
+cd ~/bebop_ws
 
-$ source devel/setup.bash
+source devel/setup.bash
 
-$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+sphinx src/control_bebop_teleop/world/aruco.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 If you wanna use another world `svo_world.world`:
 
 ```
-$ sphinx src/control_bebop_teleop/world/svo_world.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
+sphinx src/control_bebop_teleop/world/svo_world.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone
 ```
 
 If you wanna find and change the Big_box with ArUco, if you do not have the big_box, move the file to `.gazebo/models/...`:
@@ -351,28 +355,28 @@ If you wanna find and change the Big_box with ArUco, if you do not have the big_
 
 In case of low GPU, you should put this command
 ```
-$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
+sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::low_gpu=true
 
-$ sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
+sphinx src/control_bebop_teleop/world/aruco_big_box.world /opt/parrot-sphinx/usr/share/sphinx/drones/bebop2.drone::with_front_cam=false
 ```
 The world will be executed.
 
 After that, open another terminal and execute the following command in your `catkin workspace`.
 
 ```
-$ roslaunch bebop_driver bebop_node.launch
+roslaunch bebop_driver bebop_node.launch
 ```
 
 In another terminal, execute:
 
 ```
-$ rosrun control_bebop_teleop image_sub.py
+rosrun control_bebop_teleop image_sub.py
 ```
 
 In another terminal, execute:
 
 ```
-$ rosrun control_bebop_teleop landing_pub.py
+rosrun control_bebop_teleop landing_pub.py
 ```
 
 #### Play Dataset Experimental in Real World ####
@@ -380,19 +384,19 @@ $ rosrun control_bebop_teleop landing_pub.py
 If you wanna open with dataset. Open a new console and change to the directory where you have downloaded the example dataset. Then type:
 
 ```
-$ roscore
+roscore
 ```
 
 Start RVIZ (Robot Visualizer) in a new console:
 
 ```
-$ cd ~/bebop_ws
+cd ~/bebop_ws
 
-$ rosrun rviz rviz -d src/control_bebop_teleop/rviz_config_aruco.rviz
+rosrun rviz rviz -d src/control_bebop_teleop/rviz_config_aruco.rviz
 ```
 
 Open a new console and change to the directory where you have downloaded the example dataset. Then type:
 
 ```
-$ rosbag play <name-of-dataset>.bag
+rosbag play <name-of-dataset>.bag
 ```

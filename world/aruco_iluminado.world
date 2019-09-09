@@ -230,15 +230,7 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='bebop2'>
-        <pose>-0.077977 0.214998 5.53683 0.000654 -0.000529 -0.132706</pose>
-        <link name='body'>
-          <pose>-0.078005 0.214972 5.58183 0.000654 -0.000529 -0.132706</pose>
-          <velocity>-0.012502 -0.01328 -0.010805 -0.005701 0.007033 0.001126</velocity>
-          <acceleration>-0.001575 -0.000336 -0.003344 -0.035835 -0.021516 -0.024516</acceleration>
-          <wrench>-0.000792 -0.000169 -0.001682 0 -0 0</wrench>
-        </link>
-      </model>
+
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <link name='link'>
