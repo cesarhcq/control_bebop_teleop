@@ -46,7 +46,7 @@ class hough_lines:
     gray = cv2.cvtColor(src_image, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
 
     #Deteccao de bordas
-    edges = cv2.Canny(gray, 50, 50, apertureSize=3, L2gradient=True) 
+    edges = cv2.Canny(gray, 600, 20, apertureSize=3, L2gradient=True) 
 
     #Deteccao de linhas
     lines = cv2.HoughLines(edges, numLines, np.pi/90, 100)
@@ -131,7 +131,7 @@ class hough_lines:
       rospy.loginfo('No publish!')
 
     #cv2.imshow("Image",src_image)
-    #cv2.imshow("Image-edges",edges)
+    cv2.imshow("Image-edges",edges)
     cv2.waitKey(1)
 
     try:
