@@ -12,20 +12,20 @@ import cv2
 import numpy as np
 
 from sensor_msgs.msg import Image
-#from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
-from std_msgs.msg import String
 
 class hough_lines:
  
   def __init__(self):
     #-- Create a publisher in topic "image_hough" and "nav_hough_lines"
     self.nav_hough_lines_pub = rospy.Publisher("bebop/nav_hough_lines",Twist, queue_size = 100)
-    #self.image_pub = rospy.Publisher("/output/image_raw/compressed", CompressedImage, queue_size = 100)
+    
+    self.image_src_pub = rospy.Publisher("output/image_raw/compressed", CompressedImage, queue_size = 100)
+    self.image_edge_pub = rospy.Publisher("bebop/image_edge/compressed", CompressedImage, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw"
-    self.image_sub = rospy.Subscriber("/bebop/image_raw/compressed", CompressedImage, self.callback, queue_size = 100)
+    self.image_sub = rospy.Subscriber("bebop/image_raw/compressed", CompressedImage, self.callback, queue_size = 100)
 
 ###############################################################################
    
@@ -42,16 +42,18 @@ class hough_lines:
     #image_np = cv2.imdecode(np_arr, cv2.CV_LOAD_IMAGE_COLOR)
     image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR) # OpenCV >= 3.0:
 
-    (rows,cols,channels) = image_np.shape
-    rospy.loginfo("rows: %f",rows)
-    rospy.loginfo("cols: %f",cols)
-    rospy.loginfo("-------------------------")
+    # (rows,cols,channels) = image_np.shape
+    # rospy.loginfo("rows: %f",rows)
+    # rospy.loginfo("cols: %f",cols)
+    # rospy.loginfo("-------------------------")
 
+    #-- Resize image with INTER_CUBIC
+    resize = cv2.resize(image_np, (224, 224), interpolation=cv2.INTER_CUBIC)
 
     #-- Convert in gray scale
-    gray = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
+    gray = cv2.cvtColor(resize, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue, Green, Red
 
-    #Deteccao de bordas
+    #-- Deteccao de bordas
     edges = cv2.Canny(gray, 300, 350, apertureSize=3, L2gradient=True) 
 
     #Deteccao de linhas
@@ -72,7 +74,7 @@ class hough_lines:
                         x2 = int(x0 - 1000*(-b))
                         y2 = int(y0 - 1000*(a))
    
-                        cv2.line(image_np, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                        cv2.line(resize, (x1, y1), (x2, y2), (0, 0, 255), 2)
                         cv2.line(edges, (x1, y1), (x2, y2), (0, 0, 255), 2)
                         
                         med_theta = med_theta + (theta/numLines)
@@ -142,22 +144,24 @@ class hough_lines:
     #cv2.imshow("Image-edges",edges)
     #cv2.waitKey(1)
 
-    #### Create CompressedIamge ####
-    msg = CompressedImage()
-    msg.header.stamp = rospy.Time.now()
-    msg.format = "jpeg"
-    msg.data = np.array(cv2.imencode('.jpg', image_np)[1]).tostring()
-    # Publish new image
-    # try:
-    #   self.image_pub.publish(msg)
-    #   #rospy.loginfo('Is publish img!')
-    # except:
-    #   rospy.loginfo('No publish img!')
+    ### Create CompressedIamge ####
+    msg1 = CompressedImage()
+    msg1.header.stamp = rospy.Time.now()
+    msg1.format = "jpeg"
+    msg1.data = np.array(cv2.imencode('.jpg', resize)[1]).tostring()
 
-    # try:
-    #   self.vel_drone_pub.publish(self.bridge.cv2_to_imgmsg(src_image, "bgr8"))
-    # except CvBridgeError as e:
-    #   print(e)
+    ### Create CompressedIamge ####
+    msg2 = CompressedImage()
+    msg2.header.stamp = rospy.Time.now()
+    msg2.format = "jpeg"
+    msg2.data = np.array(cv2.imencode('.jpg', edges)[1]).tostring()
+
+    # Publish new image
+    try:
+      self.image_src_pub.publish(msg1)
+      self.image_edge_pub.publish(msg2)
+    except:
+      rospy.loginfo('No publish img!')
 
 
 ###############################################################################

@@ -12,27 +12,23 @@ import cv2
 
 # numpy and scipy
 import numpy as np
-import cv2.aruco as aruco
 from std_msgs.msg import Empty
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry, Path
-from geometry_msgs.msg import PoseWithCovarianceStamped, PoseStamped
-from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
+from geometry_msgs.msg import Point, Quaternion, Twist, Vector3
 
 list_hough = []
 
-pidTerm = 0
 last_error1 = 0
 int_error1 = 0
 
 drone_pose = Odometry()
-
 vel_hough = Twist()
+class_rnn = Vector3()
 
 msg_aruco = "Empty"
 
 landing = True
-
 navigation = True
 
 msg = """
@@ -43,8 +39,7 @@ Landing         - Press 2
 MoveCamera      - Press 3
 MoveUp          - Press 4
 MoveDown        - Press 5
-Auto-Landing    - Press 6
-Auto-Navigation - Press 7
+Auto-Navigation - Press 6
 ----------------------------------------------------------
 Ctrl + C to quit
 """
@@ -130,72 +125,86 @@ def moveDown():
 ###############################################################################
 
 def autoNavigation():
-    global list_hough, pidTerm, last_error1, int_error1, vel_hough 
+  global vel_hough, class_rnn, list_hough, last_error1, int_error1
 
-    med_hough = 0
-    yaw = math.degrees(vel_hough.angular.z)
-    rospy.loginfo('Yaw (Raw): %f deg/s',yaw)
+  med_hough = 0
+  pidTerm = 0
 
-    while not rospy.is_shutdown() and navigation:
-      # Filter
-      if len(list_hough) < 20:
-          list_hough.append(yaw)
-          
-      else:
-          list_hough.append(yaw)
-          del list_hough[0]
-          med_hough = sum(list_hough)/len(list_hough)
-          #rospy.loginfo('Size of list_hough %f',len(list_hough))
-          rospy.loginfo('Yaw (Filter): %f deg/s',med_hough)
-          rospy.loginfo("-------------------------")
+  while not rospy.is_shutdown():
 
-      #Gain controll
-      Kp = 0.5  #2.0
-      Ki = 0.001  #0.1
-      #Kd = 0.1  #0.5
+    y_raw = vel_hough.linear.y
+    yaw_raw = math.degrees(vel_hough.angular.z)
+    # reta = 0 / curva = 1
+    out1 = class_rnn.x
+    out2 = class_rnn.y
 
-      #Erro of Yaw
-      erro_yaw = med_hough
-      if(abs(erro_yaw) > 3):
-          pidTerm = Kp*erro_yaw + Ki*int_error1 #+ Kd*(erro_yaw-last_error1)
-          int_error1 += erro_yaw
-          #last_error1 = erro_yaw
-          new_yaw = pidTerm
-          rospy.loginfo('new_yaw: %f',new_yaw)
-          rospy.loginfo("-------------------------")
-      else:
-          new_yaw = 0
-          int_error1 = 0
-          #last_error1 = 0
-          rospy.loginfo('new_yaw: %f',new_yaw)
-          rospy.loginfo("-------------------------")
-      
-      velocity = Twist()
+    # rospy.loginfo('class_rnn.x: %f',out1)
+    # rospy.loginfo('class_rnn.y: %f',out2)
+    # rospy.loginfo("-------------------------")
+    rospy.loginfo('Y (Raw): %f m/s',y_raw)
+    rospy.loginfo('Yaw (Raw): %f deg/s',yaw_raw)
 
+    # Filter
+    if len(list_hough) < 20:
+        list_hough.append(yaw_raw)
+        
+    else:
+        list_hough.append(yaw_raw)
+        del list_hough[0]
+        med_hough = sum(list_hough)/len(list_hough)
+        #rospy.loginfo('Size of list_hough %f',len(list_hough))
+        # rospy.loginfo('Yaw (Filter): %f deg/s',med_hough)
+        # rospy.loginfo("-------------------------")
 
-      #rospy.loginfo('------------------Init Navigation----------------------')
-      velocity.linear.x = 0
-      velocity.linear.y = 0 #-vel_hough.linear.y
-      velocity.linear.z = 0
-      
-      # rospy.loginfo('vel_linear x: %f', vel_hough.linear.x)
-      # rospy.loginfo('vel_linear y: %f', -vel_hough.linear.y)
-      # rospy.loginfo('vel_linear z: %f', vel_hough.linear.z)
+    #Gain controll
+    Kp = 0.6  #2.0
+    Ki = 0.001  #0.1
+    #Kd = 0.1  #0.5
 
-      velocity.angular.x = 0
-      velocity.angular.y = 0
-      velocity.angular.z = new_yaw*(np.pi/180)
+    #Erro of Yaw
+    erro_yaw = med_hough
+    if(abs(erro_yaw) > 3):
+        pidTerm = Kp*erro_yaw + Ki*int_error1 #+ Kd*(erro_yaw-last_error1)
+        int_error1 += erro_yaw
+        #last_error1 = erro_yaw
+        new_yaw = pidTerm
+        # rospy.loginfo('new_yaw: %f',new_yaw)
+        # rospy.loginfo("-------------------------")
+    else:
+        new_yaw = 0
+        int_error1 = 0
+        #last_error1 = 0
+        # rospy.loginfo('new_yaw: %f',new_yaw)
+        # rospy.loginfo("-------------------------")
+    
+    velocity = Twist()
 
-      vel_drone_pub.publish(velocity)
+    #rospy.loginfo('------------------Init Navigation----------------------')
+    velocity.linear.x = 0
+    velocity.linear.y = 0 #-vel_hough.linear.y
+    velocity.linear.z = 0
+    
+    # rospy.loginfo('vel_linear x: %f', vel_hough.linear.x)
+    # rospy.loginfo('vel_linear y: %f', -vel_hough.linear.y)
+    # rospy.loginfo('vel_linear z: %f', vel_hough.linear.z)
 
-      rate.sleep()
+    velocity.angular.x = 0
+    velocity.angular.y = 0
+    velocity.angular.z = new_yaw*(np.pi/180)
 
+    vel_drone_pub.publish(velocity)
+
+    rate.sleep()
 
 def callbackNavHough(posedata):
-
   global vel_hough
 
   vel_hough = posedata
+
+def callbackRNN(posedata):
+  global class_rnn
+
+  class_rnn = posedata
 
   ###############################################################################
    
@@ -205,6 +214,7 @@ if __name__ == '__main__':
 
   # create the important subscribers
   hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
+  rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 100)
@@ -269,10 +279,8 @@ if __name__ == '__main__':
 
   except rospy.ROSInterruptException:
     print('Erro')
-  finally:
-    twist = Twist()
-    twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
-    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    pub.publish(twist)
-
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+  # finally:
+  #   twist = Twist()
+  #   twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
+  #   twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
+  #   pub.publish(twist)
