@@ -19,10 +19,14 @@ from geometry_msgs.msg import Point, Quaternion, Twist, Vector3
 
 list_hough = []
 
-last_error1 = 0
-int_error1 = 0
+last_error_yaw = 0
+int_error_yaw = 0
+
+last_error_y = 0
+int_error_y = 0
 
 drone_pose = Odometry()
+odom = Odometry()
 vel_hough = Twist()
 class_rnn = Vector3()
 
@@ -77,7 +81,7 @@ def moveUp():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
@@ -95,7 +99,7 @@ def moveUp():
 
     # print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
-
+y_error
  ###############################################################################
 
 def moveDown():
@@ -125,24 +129,26 @@ def moveDown():
 ###############################################################################
 
 def autoNavigation():
-  global vel_hough, class_rnn, list_hough, last_error1, int_error1
+  global vel_hough, class_rnn, list_hough, last_error_yaw, last_error_y, int_error_yaw, int_error_y, odom
 
   med_hough = 0
   pidTerm = 0
 
   while not rospy.is_shutdown():
-
+    x_raw = vel_hough.linear.x
     y_raw = vel_hough.linear.y
     yaw_raw = math.degrees(vel_hough.angular.z)
+    z_raw = odom.pose.pose.position.z
     # reta = 0 / curva = 1
-    out1 = class_rnn.x
-    out2 = class_rnn.y
+    moviment = class_rnn.x
+    rotation = class_rnn.y
 
-    # rospy.loginfo('class_rnn.x: %f',out1)
-    # rospy.loginfo('class_rnn.y: %f',out2)
+    # rospy.loginfo('class_rnn.x: %f',moviment)
+    # rospy.loginfo('class_rnn.y: %f',rotation)
     # rospy.loginfo("-------------------------")
-    rospy.loginfo('Y (Raw): %f m/s',y_raw)
-    rospy.loginfo('Yaw (Raw): %f deg/s',yaw_raw)
+    #rospy.loginfo('Y (Raw): %f m/s',y_raw)
+    #rospy.loginfo('Z (Raw): %f m/s',z_raw)
+    #rospy.loginfo('Yaw (Raw): %f deg/s',yaw_raw)
 
     # Filter
     if len(list_hough) < 20:
@@ -156,41 +162,110 @@ def autoNavigation():
         # rospy.loginfo('Yaw (Filter): %f deg/s',med_hough)
         # rospy.loginfo("-------------------------")
 
-    #Gain controll
+    #Gain controll Y
+    Kpy = 0.00001  #0.0007
+    Kiy = 0.000001  #0.000001
+    Kdy = 0.0000001  #0.5
+
+    #Erro of Y
+    erro_y = y_raw
+    if abs(erro_y) > 5:
+        pidTerm = Kpy*erro_y + Kiy*int_error_y + Kdy*(erro_y-last_error_y)
+        int_error_y += erro_y
+        last_error_y = erro_y
+        new_y = pidTerm
+        rospy.loginfo('new_y: %f',new_y)
+        rospy.loginfo("-------------------------")
+    else:
+        new_y = 0
+        int_error_y = 0
+        last_error_y = 0
+        rospy.loginfo('new_y: %f',new_y)
+        rospy.loginfo("-------------------------")
+
+    kpz = 0.7
+    set_point = 1.7
+    # y in the drone of ROS = X in the image
+    erro_z = float(set_point - z_raw)
+    if erro_z > abs(0.1):
+        new_z = erro_z*kpz
+        #rospy.loginfo("Correction Z %f", new_z)
+        #rospy.loginfo("-------------------------")
+    else:
+        new_z = 0
+        #rospy.loginfo("Correction Z %f", new_z)
+        #rospy.loginfo("-------------------------")
+
+    #Gain controll Yaw
     Kp = 0.6  #2.0
     Ki = 0.001  #0.1
     #Kd = 0.1  #0.5
 
     #Erro of Yaw
     erro_yaw = med_hough
-    if(abs(erro_yaw) > 3):
-        pidTerm = Kp*erro_yaw + Ki*int_error1 #+ Kd*(erro_yaw-last_error1)
-        int_error1 += erro_yaw
-        #last_error1 = erro_yaw
+    if abs(erro_yaw) > 3:
+        pidTerm = Kp*erro_yaw + Ki*int_error_yaw #+ Kd*(erro_yaw-last_error_yaw)
+        int_error_yaw += erro_yaw
+        #last_error_yaw = erro_yaw
         new_yaw = pidTerm
         # rospy.loginfo('new_yaw: %f',new_yaw)
         # rospy.loginfo("-------------------------")
     else:
         new_yaw = 0
-        int_error1 = 0
+        int_error_yaw = 0
         #last_error1 = 0
         # rospy.loginfo('new_yaw: %f',new_yaw)
         # rospy.loginfo("-------------------------")
     
     velocity = Twist()
 
-    #rospy.loginfo('------------------Init Navigation----------------------')
-    velocity.linear.x = 0
-    velocity.linear.y = 0 #-vel_hough.linear.y
-    velocity.linear.z = 0
-    
-    # rospy.loginfo('vel_linear x: %f', vel_hough.linear.x)
-    # rospy.loginfo('vel_linear y: %f', -vel_hough.linear.y)
-    # rospy.loginfo('vel_linear z: %f', vel_hough.linear.z)
+    # if moviment == 1:
+    #     rospy.loginfo("Curva")
+    #     # velocity.linear.x = x_raw
+    #     # velocity.linear.y = 0
+    #     # velocity.linear.z = new_z
+
+    #     # velocity.angular.x = 0
+    #     # velocity.angular.y = 0
+    #     # velocity.angular.z = 8*(np.pi/180)
+    #     if rotation == 1:
+    #         velocity.linear.x = 0.02
+    #         velocity.linear.y = 0
+    #         velocity.linear.z = new_z
+
+    #         velocity.angular.x = 0
+    #         velocity.angular.y = 0
+    #         velocity.angular.z = 8*(np.pi/180)
+    #         #rospy.loginfo("Vel Y: %f m/s",y_correction)
+    #         rospy.loginfo("...Left-yaw: %f deg/s",velocity.angular.z*(180/np.pi))
+    #         rospy.loginfo("-------------------------")
+
+    #     else:
+    #         velocity.linear.x = 0.02
+    #         velocity.linear.y = 0
+    #         velocity.linear.z = new_z
+
+    #         velocity.angular.x = 0
+    #         velocity.angular.y = 0
+    #         velocity.angular.z = -8*(np.pi/180)
+    #         #rospy.loginfo("Vel Y: %f m/s",y_correction)
+    #         rospy.loginfo("...Right-yaw: %f deg/s",velocity.angular.z*(180/np.pi))
+    #         rospy.loginfo("-------------------------")
+    # else:
+    rospy.loginfo("Reta")
+    velocity.linear.x = 0.015 #0.02
+    velocity.linear.y = -new_y
+    velocity.linear.z = new_z
 
     velocity.angular.x = 0
     velocity.angular.y = 0
     velocity.angular.z = new_yaw*(np.pi/180)
+
+    rospy.loginfo('vel_linear  x: %f', 0.015)
+    rospy.loginfo('vel_linear  y: %f',-new_y)
+    rospy.loginfo('vel_linear  z: %f', new_z)
+    rospy.loginfo('vel_angular z: %f', new_yaw)
+    rospy.loginfo("-------------------------")
 
     vel_drone_pub.publish(velocity)
 
@@ -206,6 +281,11 @@ def callbackRNN(posedata):
 
   class_rnn = posedata
 
+def callbackOdom(posedata):
+  global odom
+
+  odom = posedata
+
   ###############################################################################
    
 if __name__ == '__main__':
@@ -215,6 +295,8 @@ if __name__ == '__main__':
   # create the important subscribers
   hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
   rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
+  odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
+
 
   # create the important publishers
   cam_pub = rospy.Publisher("bebop/camera_control",Twist, queue_size = 100)
@@ -226,7 +308,7 @@ if __name__ == '__main__':
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(100.0) #-- 100Hz
+  rate = rospy.Rate(60.0) #-- 100Hz
 
   print('Program Started')
   print(msg)
