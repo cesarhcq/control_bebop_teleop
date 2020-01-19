@@ -21,8 +21,8 @@ class hough_lines:
     #-- Create a publisher in topic "image_hough" and "nav_hough_lines"
     self.nav_hough_lines_pub = rospy.Publisher("bebop/nav_hough_lines",Twist, queue_size = 100)
     
-    self.image_hough_pub = rospy.Publisher("outputt/image_hough/compressed", CompressedImage, queue_size = 100)
-    self.image_edge_pub = rospy.Publisher("outputt/image_edge/compressed", CompressedImage, queue_size = 100)
+    self.image_hough_pub = rospy.Publisher("output/image_hough/compressed", CompressedImage, queue_size = 100)
+    self.image_edge_pub = rospy.Publisher("output/image_edge/compressed", CompressedImage, queue_size = 100)
 
     #-- Create a supscriber from topic "image_raw"
     self.image_sub = rospy.Subscriber("bebop/image_raw/compressed", CompressedImage, self.callback, queue_size = 100)

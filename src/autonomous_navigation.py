@@ -109,7 +109,7 @@ def moveDown():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 500:
+  while not rospy.is_shutdown() and cont < 100:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
@@ -134,7 +134,17 @@ def autoNavigation():
   med_hough = 0
   pidTerm = 0
 
+  moveUp()
+
+  current_time = rospy.Time.now()
+  last_time = rospy.Time.now()
+
   while not rospy.is_shutdown():
+
+    current_time = rospy.Time.now()
+    # compute odometry in a typical way given the velocities of the robot
+    dt = (current_time - last_time).to_sec()
+
     x_raw = vel_hough.linear.x
     y_raw = vel_hough.linear.y
     yaw_raw = math.degrees(vel_hough.angular.z)
@@ -184,7 +194,7 @@ def autoNavigation():
         rospy.loginfo("-------------------------")
 
     kpz = 0.7
-    set_point = 1.7
+    set_point = 2.0
     # y in the drone of ROS = X in the image
     erro_z = float(set_point - z_raw)
     if erro_z > abs(0.1):
@@ -252,8 +262,23 @@ def autoNavigation():
     #         rospy.loginfo("...Right-yaw: %f deg/s",velocity.angular.z*(180/np.pi))
     #         rospy.loginfo("-------------------------")
     # else:
+          # rospy.loginfo("Reta")
+          # velocity.linear.x = 0.015 #0.02
+          # velocity.linear.y = -new_y
+          # velocity.linear.z = new_z
+
+          # velocity.angular.x = 0
+          # velocity.angular.y = 0
+          # velocity.angular.z = new_yaw*(np.pi/180)
+
+          # rospy.loginfo('vel_linear  x: %f', 0.015)
+          # rospy.loginfo('vel_linear  y: %f',-new_y)
+          # rospy.loginfo('vel_linear  z: %f', new_z)
+          # rospy.loginfo('vel_angular z: %f', new_yaw)
+          # rospy.loginfo("-------------------------")
+
     rospy.loginfo("Reta")
-    velocity.linear.x = 0.015 #0.02
+    velocity.linear.x = 0
     velocity.linear.y = -new_y
     velocity.linear.z = new_z
 
@@ -295,7 +320,7 @@ if __name__ == '__main__':
   # create the important subscribers
   hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
   rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
-  odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
+  #odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
 
 
   # create the important publishers
