@@ -99,7 +99,7 @@ def moveUp():
 
     # print('velocity-linear-X: {} - velocity-linear-Y: {} - velocity-linear-Z: {}'.format(velocity.linear.x, velocity.linear.y, velocity.linear.z))
     rate.sleep()
-y_error
+
  ###############################################################################
 
 def moveDown():
@@ -194,7 +194,7 @@ def autoNavigation():
         rospy.loginfo("-------------------------")
 
     kpz = 0.7
-    set_point = 2.0
+    set_point = 1.0
     # y in the drone of ROS = X in the image
     erro_z = float(set_point - z_raw)
     if erro_z > abs(0.1):
@@ -279,17 +279,17 @@ def autoNavigation():
 
     rospy.loginfo("Reta")
     velocity.linear.x = 0
-    velocity.linear.y = -new_y
+    velocity.linear.y = 0#-new_y
     velocity.linear.z = new_z
 
     velocity.angular.x = 0
     velocity.angular.y = 0
-    velocity.angular.z = new_yaw*(np.pi/180)
+    velocity.angular.z = 0#new_yaw*(np.pi/180)
 
-    rospy.loginfo('vel_linear  x: %f', 0.015)
-    rospy.loginfo('vel_linear  y: %f',-new_y)
+    rospy.loginfo('vel_linear  x: %f', 0)
+    rospy.loginfo('vel_linear  y: %f', 0)
     rospy.loginfo('vel_linear  z: %f', new_z)
-    rospy.loginfo('vel_angular z: %f', new_yaw)
+    rospy.loginfo('vel_angular z: %f', 0)
     rospy.loginfo("-------------------------")
 
     vel_drone_pub.publish(velocity)
@@ -321,6 +321,7 @@ if __name__ == '__main__':
   hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
   rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
   #odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
+  rcnn_sub = rospy.Subscriber('rcnn/nav_position', Odometry, callbackOdom, queue_size=100)
 
 
   # create the important publishers
