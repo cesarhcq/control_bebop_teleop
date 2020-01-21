@@ -34,6 +34,7 @@ msg_aruco = "Empty"
 
 landing = True
 navigation = True
+init = True
 
 msg = """
 Keyboard commands for Autonomous Landing of the Quadcopter
@@ -81,7 +82,7 @@ def moveUp():
 
   cont = 0
 
-  while not rospy.is_shutdown() and cont < 100:
+  while not rospy.is_shutdown() and cont < 50:
 
     #print('init cont: ', cont)
     velocity.linear.x = 0
@@ -129,12 +130,11 @@ def moveDown():
 ###############################################################################
 
 def autoNavigation():
-  global vel_hough, class_rnn, list_hough, last_error_yaw, last_error_y, int_error_yaw, int_error_y, odom
+  global vel_hough, class_rnn, list_hough, last_error_yaw, last_error_y, int_error_yaw, int_error_y, odom, init
 
   med_hough = 0
   pidTerm = 0
-
-  moveUp()
+  cont = 0
 
   current_time = rospy.Time.now()
   last_time = rospy.Time.now()
@@ -184,20 +184,22 @@ def autoNavigation():
         int_error_y += erro_y
         last_error_y = erro_y
         new_y = pidTerm
-        rospy.loginfo('new_y: %f',new_y)
-        rospy.loginfo("-------------------------")
+        #rospy.loginfo('new_y: %f',new_y)
+        #rospy.loginfo("-------------------------")
     else:
         new_y = 0
         int_error_y = 0
         last_error_y = 0
-        rospy.loginfo('new_y: %f',new_y)
-        rospy.loginfo("-------------------------")
+        #rospy.loginfo('new_y: %f',new_y)
+        #rospy.loginfo("-------------------------")
 
     kpz = 0.7
     set_point = 1.0
     # y in the drone of ROS = X in the image
     erro_z = float(set_point - z_raw)
-    if erro_z > abs(0.1):
+    #rospy.loginfo("erro_z %f", erro_z)
+
+    if abs(erro_z) > 0.1:
         new_z = erro_z*kpz
         #rospy.loginfo("Correction Z %f", new_z)
         #rospy.loginfo("-------------------------")
@@ -276,8 +278,18 @@ def autoNavigation():
           # rospy.loginfo('vel_linear  z: %f', new_z)
           # rospy.loginfo('vel_angular z: %f', new_yaw)
           # rospy.loginfo("-------------------------")
+    if init == True:
+      for i in range(50):
+        velocity = Twist()
+        velocity.linear.y = -0.02
+        velocity.linear.z = 2
+        vel_drone_pub.publish(velocity)
+        rospy.logdebug('Z: SUBINDO!')
+        rate.sleep()
 
-    rospy.loginfo("Reta")
+    init = False
+
+    #rospy.loginfo("Reta")
     velocity.linear.x = 0
     velocity.linear.y = 0#-new_y
     velocity.linear.z = new_z
@@ -286,25 +298,25 @@ def autoNavigation():
     velocity.angular.y = 0
     velocity.angular.z = 0#new_yaw*(np.pi/180)
 
-    rospy.loginfo('vel_linear  x: %f', 0)
-    rospy.loginfo('vel_linear  y: %f', 0)
+    # rospy.loginfo('vel_linear  x: %f', 0)
+    # rospy.loginfo('vel_linear  y: %f', 0)
     rospy.loginfo('vel_linear  z: %f', new_z)
-    rospy.loginfo('vel_angular z: %f', 0)
-    rospy.loginfo("-------------------------")
+    # rospy.loginfo('vel_angular z: %f', 0)
+    rospy.logdebug("-------------------------")
 
     vel_drone_pub.publish(velocity)
 
     rate.sleep()
 
-def callbackNavHough(posedata):
-  global vel_hough
+# def callbackNavHough(posedata):
+#   global vel_hough
 
-  vel_hough = posedata
+#   vel_hough = posedata
 
-def callbackRNN(posedata):
-  global class_rnn
+# def callbackRNN(posedata):
+#   global class_rnn
 
-  class_rnn = posedata
+#   class_rnn = posedata
 
 def callbackOdom(posedata):
   global odom
@@ -318,8 +330,8 @@ if __name__ == '__main__':
   rospy.init_node('autonomous_navigation',log_level=rospy.DEBUG)
 
   # create the important subscribers
-  hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
-  rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
+  # hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
+  # rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
   #odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
   rcnn_sub = rospy.Subscriber('rcnn/nav_position', Odometry, callbackOdom, queue_size=100)
 
@@ -334,7 +346,7 @@ if __name__ == '__main__':
   
   empty_msg = Empty() 
 
-  rate = rospy.Rate(60.0) #-- 100Hz
+  rate = rospy.Rate(100.0) #-- 100Hz
 
   print('Program Started')
   print(msg)
