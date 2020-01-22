@@ -291,27 +291,27 @@ def autoNavigation():
 
     #rospy.loginfo("Reta")
     velocity.linear.x = 0
-    velocity.linear.y = 0#-new_y
+    velocity.linear.y = -new_y
     velocity.linear.z = new_z
 
     velocity.angular.x = 0
     velocity.angular.y = 0
-    velocity.angular.z = 0#new_yaw*(np.pi/180)
+    velocity.angular.z = new_yaw*(np.pi/180)
 
     # rospy.loginfo('vel_linear  x: %f', 0)
-    # rospy.loginfo('vel_linear  y: %f', 0)
+    rospy.loginfo('vel_linear  y: %f', -new_y)
     rospy.loginfo('vel_linear  z: %f', new_z)
-    # rospy.loginfo('vel_angular z: %f', 0)
+    rospy.loginfo('vel_angular z: %f', new_yaw*(np.pi/180))
     rospy.logdebug("-------------------------")
 
     vel_drone_pub.publish(velocity)
 
     rate.sleep()
 
-# def callbackNavHough(posedata):
-#   global vel_hough
+def callbackNavHough(posedata):
+  global vel_hough
 
-#   vel_hough = posedata
+  vel_hough = posedata
 
 # def callbackRNN(posedata):
 #   global class_rnn
@@ -330,7 +330,7 @@ if __name__ == '__main__':
   rospy.init_node('autonomous_navigation',log_level=rospy.DEBUG)
 
   # create the important subscribers
-  # hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
+  hough_sub = rospy.Subscriber("bebop/nav_hough_lines",Twist, callbackNavHough, queue_size = 100)
   # rnn_sub = rospy.Subscriber("bebop/nav_rnn",Vector3, callbackRNN, queue_size = 100)
   #odm_sub = rospy.Subscriber('bebop/odom', Odometry, callbackOdom, queue_size=100)
   rcnn_sub = rospy.Subscriber('rcnn/nav_position', Odometry, callbackOdom, queue_size=100)
