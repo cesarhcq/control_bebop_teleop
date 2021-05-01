@@ -116,7 +116,7 @@ catkin build
 ### Get the simulator and additional dependencies ###
 ```
 cd ~/bebop_ws/src
-git clone https://github.com/cesarhcq/control_bebop_teleop.git
+git clone https://github.com/alanprodam/control_bebop_teleop.git
 ```
 
 ```
